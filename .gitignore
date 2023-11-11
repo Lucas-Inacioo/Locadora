@@ -25,3 +25,4 @@ replay_pid*
 
 # arquivos tsv de database
 *.tsv
+bin/
