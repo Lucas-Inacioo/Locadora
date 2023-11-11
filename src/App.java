@@ -20,11 +20,11 @@ public class App extends Application {
         Scene scene = new Scene(root, 800, 600);
 
         VBox menuBox = new VBox(10);
-        Button vehicleManagementBtn = new Button("Gerenciar Veículos");
+        Button veiculoManagementBtn = new Button("Gerenciar Veículos");
         Button customerManagementBtn = new Button("Gerenciar Clientes");
         Button rentalReservationsBtn = new Button("Realizar Reservas");
         Button operationalSettingsBtn = new Button("Configurações do Sistema");
-        menuBox.getChildren().addAll(vehicleManagementBtn, customerManagementBtn, rentalReservationsBtn, operationalSettingsBtn);
+        menuBox.getChildren().addAll(veiculoManagementBtn, customerManagementBtn, rentalReservationsBtn, operationalSettingsBtn);
 
         root.setLeft(menuBox);
 
@@ -40,7 +40,7 @@ public class App extends Application {
         root.setCenter(tabPane);
 
         // Event Handling for menu buttons
-        vehicleManagementBtn.setOnAction(e -> tabPane.getSelectionModel().select(veiculoTab));
+        veiculoManagementBtn.setOnAction(e -> tabPane.getSelectionModel().select(veiculoTab));
         customerManagementBtn.setOnAction(e -> tabPane.getSelectionModel().select(clienteTab));
         rentalReservationsBtn.setOnAction(e -> tabPane.getSelectionModel().select(reservaTab));
         operationalSettingsBtn.setOnAction(e -> tabPane.getSelectionModel().select(configuracoesTab));

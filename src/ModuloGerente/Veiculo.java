@@ -1,6 +1,9 @@
 package ModuloGerente;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 
@@ -91,6 +94,36 @@ public class Veiculo {
             writer.write(data);
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    public static void deleteVeiculo(String placa, String reason) {
+        File inputFile = new File("database/veiculos.tsv");
+        File tempFile = new File("database/veiculos_temp.tsv");
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(inputFile));
+             BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile))) {
+
+            String currentLine;
+
+            while ((currentLine = reader.readLine()) != null) {
+                String[] data = currentLine.split("\t");
+                if (data[0].equals(placa)) {
+                    data[6] = "indisponivel - " + reason;
+                    currentLine = String.join("\t", data);
+                }
+                writer.write(currentLine + System.lineSeparator());
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        if (inputFile.delete()) {
+            if (!tempFile.renameTo(inputFile)) {
+                System.out.println("Could not rename the temporary file.");
+            }
+        } else {
+            System.out.println("Could not delete the original file.");
         }
     }
 }
