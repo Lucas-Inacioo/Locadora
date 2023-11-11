@@ -6,6 +6,9 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,6 +23,15 @@ public class Configuracoes {
     public Configuracoes(String nomeGrupo, String valorDiaria, String valorTanque, String valorLimpezaExt,
                          String valorLimpezaInt, String diariaSeguro) {
         this.nomeGrupo = nomeGrupo;        
+        this.valorDiaria = valorDiaria;
+        this.valorTanque = valorTanque;
+        this.valorLimpezaExt = valorLimpezaExt;
+        this.valorLimpezaInt = valorLimpezaInt;
+        this.diariaSeguro = diariaSeguro;
+    }
+
+    public Configuracoes(String valorDiaria, String valorTanque, String valorLimpezaExt,
+                         String valorLimpezaInt, String diariaSeguro) {   
         this.valorDiaria = valorDiaria;
         this.valorTanque = valorTanque;
         this.valorLimpezaExt = valorLimpezaExt;
@@ -116,4 +128,18 @@ public class Configuracoes {
         return nomeGrupo + "\t" + valorDiaria + "\t" + valorTanque + "\t" + valorLimpezaExt + 
                "\t" + valorLimpezaInt + "\t" + diariaSeguro;
     }
+
+    public static void saveMultiConfiguracoes(List<List<String>> allConfigurations) {
+    Path path = Paths.get("database", "configuracoes.tsv");
+    
+    try (BufferedWriter bw = Files.newBufferedWriter(path)) {
+        for (List<String> configValues : allConfigurations) {
+            String line = String.join("\t", configValues);
+            bw.write(line);
+            bw.newLine();
+        }
+    } catch (IOException e) {
+        e.printStackTrace();
+    }
+}
 }
