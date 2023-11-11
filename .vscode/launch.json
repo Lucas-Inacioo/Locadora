@@ -1,0 +1,20 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "RentalManagementSystem",
+            "request": "launch",
+            "mainClass": "RentalManagementSystem",
+            "projectName": "Locadora_a81f90dd"
+        },
+        {
+            "type": "java",
+            "name": "Launch App",
+            "request": "launch",
+            "mainClass": "App",
+            "vmArgs": "--module-path \"..\\..\\javafx-sdk-21.0.1\\lib\" --add-modules javafx.controls,javafx.fxml",
+            "args": ""
+        }
+    ]
+}
