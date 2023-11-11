@@ -4,13 +4,7 @@ import javafx.scene.control.Tab;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -39,11 +33,11 @@ public class ConfiguracoesTab {
 
         // Second Column
         Label secondColLabel = new Label("Configuração PADRÃO");
-        operationalGrid.add(secondColLabel, 2, 0); // Top of second column
+        operationalGrid.add(secondColLabel, 2, 0);
 
         // Third Column
         Label thirdColLabel = new Label("Configuração VIP");
-        operationalGrid.add(thirdColLabel, 4, 0); // Top of third column
+        operationalGrid.add(thirdColLabel, 4, 0);
 
         // Add content for the first column
         Label valorDiariaLabelBasico = new Label("Valor da Diária:");
@@ -125,7 +119,6 @@ public class ConfiguracoesTab {
 
         Button submitButton = new Button("Registrar Configurações");
         submitButton.setOnAction(e -> {
-            // Gather data from all columns
             List<String> basicoValues = Arrays.asList(
                 "BASICO",
                 valorDiariaFieldBasico.getText(),
@@ -153,47 +146,17 @@ public class ConfiguracoesTab {
                 diariaSeguroFieldVIP.getText()
             );
         
-            // Combine all configurations into a list of lists
             List<List<String>> allConfigurations = Arrays.asList(basicoValues, padraoValues, vipValues);
         
-            // Save all configurations to the TSV file
             Configuracoes.saveMultiConfiguracoes(allConfigurations);
         });
         operationalGrid.add(submitButton, 1, 7);
 
-        Map<String, List<String>> allConfigValues = readAllConfigurations();
+        Map<String, List<String>> allConfigValues = Configuracoes.readAllConfigurations();
 
-        setConfigValues(allConfigValues.get("BASICO"), valorDiariaFieldBasico, valorTanqueFieldBasico, valorLimpezaExtFieldBasico, valorLimpezaintFieldBasico, diariaSeguroFieldBasico);
-        setConfigValues(allConfigValues.get("PADRAO"), valorDiariaFieldPadrao, valorTanqueFieldPadrao, valorLimpezaExtFieldPadrao, valorLimpezaintFieldPadrao, diariaSeguroFieldPadrao);
-        setConfigValues(allConfigValues.get("VIP"), valorDiariaFieldVIP, valorTanqueFieldVIP, valorLimpezaExtFieldVIP, valorLimpezaintFieldVIP, diariaSeguroFieldVIP);
+        Configuracoes.setConfigValues(allConfigValues.get("BASICO"), valorDiariaFieldBasico, valorTanqueFieldBasico, valorLimpezaExtFieldBasico, valorLimpezaintFieldBasico, diariaSeguroFieldBasico);
+        Configuracoes.setConfigValues(allConfigValues.get("PADRAO"), valorDiariaFieldPadrao, valorTanqueFieldPadrao, valorLimpezaExtFieldPadrao, valorLimpezaintFieldPadrao, diariaSeguroFieldPadrao);
+        Configuracoes.setConfigValues(allConfigValues.get("VIP"), valorDiariaFieldVIP, valorTanqueFieldVIP, valorLimpezaExtFieldVIP, valorLimpezaintFieldVIP, diariaSeguroFieldVIP);
     }
 
-    private static void setConfigValues(List<String> configValues, TextField... fields) {
-        if (configValues != null && configValues.size() == fields.length) {
-            for (int i = 0; i < fields.length; i++) {
-                fields[i].setText(configValues.get(i)); // Assign the value to the text field
-            }
-        } else {
-            System.out.println("Expected " + fields.length + " configuration values, but found " + (configValues != null ? configValues.size() : "null"));
-        }
-    }
-
-    private static Map<String, List<String>> readAllConfigurations() {
-        Map<String, List<String>> allConfigValues = new HashMap<>();
-        Path path = Paths.get("database", "configuracoes.tsv");
-
-        try (BufferedReader br = Files.newBufferedReader(path)) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                String[] values = line.split("\t");
-                if (values.length > 0) {
-                    allConfigValues.put(values[0], Arrays.asList(values).subList(1, values.length));
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return allConfigValues;
-    }
 }

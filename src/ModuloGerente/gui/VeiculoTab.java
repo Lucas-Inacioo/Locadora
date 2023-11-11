@@ -130,6 +130,6 @@ public class VeiculoTab {
         submitButton.setOnAction(e -> {
             Veiculo.deleteVeiculo(placaField.getText(), motivoField.getText());
         });
-        veiculoGrid.add(submitButton, 1, 7);
+        veiculoGrid.add(submitButton, 1, 2);
     }
 }

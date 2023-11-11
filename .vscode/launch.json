@@ -3,6 +3,13 @@
     "configurations": [
         {
             "type": "java",
+            "name": "Credentials",
+            "request": "launch",
+            "mainClass": "gui.Credentials",
+            "projectName": "Locadora_a81f90dd"
+        },
+        {
+            "type": "java",
             "name": "RentalManagementSystem",
             "request": "launch",
             "mainClass": "RentalManagementSystem",

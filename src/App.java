@@ -1,35 +1,19 @@
-import ModuloGerente.gui.*;
-import ModuloFuncionario.gui.*;
+import gui.*;
 
 import javafx.application.Application;
 import javafx.scene.Scene;
-import javafx.scene.control.Tab;
-import javafx.scene.control.TabPane;
-import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 public class App extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        primaryStage.setTitle("Sistema de Gerenciamento de Aluguel de Veículos");
+        Credentials credentials = new Credentials();
+        VBox loginScreen = credentials.createLoginScreen(primaryStage);
+        Scene loginScene = new Scene(loginScreen, 300, 200);
 
-        BorderPane root = new BorderPane();
-        Scene scene = new Scene(root, 800, 600);
-
-        TabPane tabPane = new TabPane();
-
-        Tab veiculoTab = VeiculoTab.createVeiculoTab();
-        Tab clienteTab = ClienteTab.createClientesTab();
-        Tab reservaTab = ReservaTab.createReservaTab();
-        Tab configuracoesTab = ConfiguracoesTab.createCofiguracoesTab();
-
-
-        tabPane.getTabs().addAll(veiculoTab, clienteTab, reservaTab, configuracoesTab);
-        root.setCenter(tabPane);
-
-
-        primaryStage.setScene(scene);
+        primaryStage.setScene(loginScene);
         primaryStage.show();
     }
     
