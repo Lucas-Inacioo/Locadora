@@ -14,7 +14,7 @@ import javafx.scene.control.Label;
 
 public class ConfiguracoesTab {
     
-    public static Tab createCofiguracoesTab() {
+    public static Tab createConfiguracoesTab() {
         Tab operationalTab = new Tab("Configurações");
         GridPane operationalGrid = new GridPane();
         tabConfiguracoes(operationalGrid);

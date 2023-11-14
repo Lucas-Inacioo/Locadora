@@ -1,6 +1,7 @@
 package gui;
 
 import ModuloGerente.gui.ConfiguracoesTab;
+import ModuloGerente.gui.RelatorioTab;
 import ModuloGerente.gui.VeiculoTab;
 import javafx.scene.Scene;
 import javafx.scene.control.Tab;
@@ -16,9 +17,10 @@ public class Gerente {
         TabPane tabPane = new TabPane();
 
         Tab veiculoTab = VeiculoTab.createVeiculoTab();
-        Tab configuracoesTab = ConfiguracoesTab.createCofiguracoesTab();
+        Tab configuracoesTab = ConfiguracoesTab.createConfiguracoesTab();
+        Tab relatorioTab = RelatorioTab.createRelatorioTab(primaryStage);
 
-        tabPane.getTabs().addAll(veiculoTab, configuracoesTab);
+        tabPane.getTabs().addAll(veiculoTab, configuracoesTab, relatorioTab);
         root.setCenter(tabPane);
 
         primaryStage.setScene(scene);

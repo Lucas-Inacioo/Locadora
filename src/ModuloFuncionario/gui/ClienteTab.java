@@ -58,7 +58,7 @@ public class ClienteTab {
             );
             cliente.saveCliente();
         });
-        customerGrid.add(submitButton, 1, 7);
+        customerGrid.add(submitButton, 1, 5);
     }
 
 }
