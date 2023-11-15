@@ -7,6 +7,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import ModuloGerente.Veiculo;
 
@@ -87,7 +88,9 @@ public class VeiculoTab {
         veiculoGrid.add(anoFabricacaoField, 1, 4);
 
         Label nomeGrupoLabel = new Label("Nome do Grupo:");
-        TextField nomeGrupoField = new TextField();
+        ComboBox<String> nomeGrupoField = new ComboBox<>();
+        nomeGrupoField.getItems().addAll("BASICO", "PADRAO", "VIP");
+        nomeGrupoField.setValue("BASICO");
         veiculoGrid.add(nomeGrupoLabel, 0, 5);
         veiculoGrid.add(nomeGrupoField, 1, 5);
 
@@ -104,7 +107,7 @@ public class VeiculoTab {
                 modeloField.getText(),
                 corField.getText(),
                 anoFabricacaoField.getText(),
-                nomeGrupoField.getText(),
+                nomeGrupoField.getValue(),
                 carStatusField.getText()
             );
             veiculo.saveVeiculo();

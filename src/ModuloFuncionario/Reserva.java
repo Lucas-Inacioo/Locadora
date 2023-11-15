@@ -1,15 +1,15 @@
 package ModuloFuncionario;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
-import ModuloFuncionario.gui.ReservaTab;
-import javafx.scene.Scene;
-import javafx.scene.control.Tab;
-import javafx.scene.control.TabPane;
-import javafx.scene.layout.BorderPane;
-import javafx.stage.Stage;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 
 public class Reserva {
     private String identificador;   
@@ -104,17 +104,46 @@ public class Reserva {
         }
     }
 
-    public static void loadCarrosDisponiveisScreen(Stage primaryStage) {
-        BorderPane root = new BorderPane();
-        Scene scene = new Scene(root, 800, 600);
+    public static ObservableList<String> generateGrupoList() {
+        ObservableList<String> grupoList = FXCollections.observableArrayList();
 
-        TabPane tabPane = new TabPane();
+        Path path = Paths.get("database", "veiculos.tsv");
+        try (BufferedReader br = Files.newBufferedReader(path)) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] parts = line.split("\t");
+                String grupo = parts[5].trim();
+                if (!grupoList.contains(grupo)) {
+                    grupoList.add(grupo);
+                }
+            }
+        } catch (IOException e) {
+            System.out.println("Failed to read file: " + e.getMessage());
+            e.printStackTrace();
+        }
+        
+        return grupoList;
+    }
 
-        Tab reserva = ReservaTab.createReservaTab(primaryStage);
+    public static ObservableList<String> generatePlacaList(String selectedGrupo) {
+        ObservableList<String> placaList = FXCollections.observableArrayList();
 
-        tabPane.getTabs().addAll(reserva);
-        root.setCenter(tabPane);
-
-        primaryStage.setScene(scene);
+        Path path = Paths.get("database", "veiculos.tsv");
+        try (BufferedReader br = Files.newBufferedReader(path)) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] parts = line.split("\t");
+                String placa = parts[0].trim();
+                String grupo = parts[5].trim();
+                if (grupo.equals(selectedGrupo)) {
+                    placaList.add(placa);
+                }
+            }
+        } catch (IOException e) {
+            System.out.println("Failed to read file: " + e.getMessage());
+            e.printStackTrace();
+        }
+        
+        return placaList;
     }
 }

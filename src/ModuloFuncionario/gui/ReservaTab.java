@@ -5,14 +5,9 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.format.DateTimeFormatter;
 
-import javafx.collections.FXCollections;
+import ModuloFuncionario.Reserva;
 import javafx.collections.ObservableList;
 import javafx.scene.control.Button;
 import javafx.scene.control.DatePicker;
@@ -60,7 +55,7 @@ public class ReservaTab {
             String dataRetiradaField = dataRetiradaPicker.getValue().format(formatter);
             String dataDevolucaoField = dataDevolucaoPicker.getValue().format(formatter);
             
-            listVeiculos(reservationGrid, primaryStage, dataRetiradaField, dataDevolucaoField);
+            displayGrupos(reservationGrid, primaryStage, dataRetiradaField, dataDevolucaoField);
         });
         reservationGrid.add(submitButton, 1, 7);
     }
@@ -116,30 +111,27 @@ public class ReservaTab {
         */
     }
 
-    private static void listVeiculos(GridPane reservationGrid, Stage primaryStage, String dataRetirada, String dataDevolucao) {
-        ObservableList<String> placaList = FXCollections.observableArrayList();
+    private static void displayGrupos(GridPane reservationGrid, Stage primaryStage, String dataRetirada, String dataDevolucao) {
+        ObservableList<String> grupoList = Reserva.generateGrupoList();
+        ListView<String> listView = new ListView<>(grupoList);
+        listView.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+    
+        listView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, selectedGrupo) -> {
+            displayPlacas(reservationGrid, primaryStage, selectedGrupo);
+        });
+    
+        reservationGrid.add(listView, 0, 2, 2, 1);
+    }
 
-        Path path = Paths.get("database", "veiculos.tsv");
-        try (BufferedReader br = Files.newBufferedReader(path)) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                String[] parts = line.split("\t");
-                String placa = parts[0].trim();
-                placaList.add(placa);
-            }
-        } catch (IOException e) {
-            System.out.println("Failed to read file: " + e.getMessage());
-            e.printStackTrace();
-            return;
-        }
-
+    private static void displayPlacas(GridPane reservationGrid, Stage primaryStage, String selectedGrupo) {
+        ObservableList<String> placaList = Reserva.generatePlacaList(selectedGrupo);
         ListView<String> listView = new ListView<>(placaList);
         listView.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
-
+    
         listView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            System.out.println("Selected item: " + newValue); //TODO CHANGE SELECT LOGIC
+            System.out.println("Selected item: " + newValue); // TODO: Change selection logic
         });
-
+    
         reservationGrid.add(listView, 0, 2, 2, 1);
     }
 }
