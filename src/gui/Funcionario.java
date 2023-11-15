@@ -16,7 +16,7 @@ public class Funcionario {
         TabPane tabPane = new TabPane();
 
         Tab clienteTab = ClienteTab.createClientesTab();
-        Tab reservaTab = ReservaTab.createReservaTab();
+        Tab reservaTab = ReservaTab.createVeiculosDisponiveisTab(primaryStage);
 
         tabPane.getTabs().addAll(clienteTab, reservaTab);
         root.setCenter(tabPane);

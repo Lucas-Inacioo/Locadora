@@ -1,4 +1,4 @@
-package ModuloGerente;
+package gui;
 
 import ModuloFuncionario.gui.ClienteTab;
 import ModuloFuncionario.gui.ReservaTab;

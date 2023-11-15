@@ -4,6 +4,13 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import ModuloFuncionario.gui.ReservaTab;
+import javafx.scene.Scene;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
+import javafx.scene.layout.BorderPane;
+import javafx.stage.Stage;
+
 public class Reserva {
     private String identificador;   
     private String CPFCliente;
@@ -12,6 +19,8 @@ public class Reserva {
     private String dataDevolucao;
     private String valorLocacao;
     private String status;
+
+    public Reserva(){}
 
     public Reserva(String identificador, String CPFCliente, String Placa, String dataRetirada, 
                    String dataDevolucao, String valorLocacao, String status) {
@@ -93,5 +102,19 @@ public class Reserva {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public static void loadCarrosDisponiveisScreen(Stage primaryStage) {
+        BorderPane root = new BorderPane();
+        Scene scene = new Scene(root, 800, 600);
+
+        TabPane tabPane = new TabPane();
+
+        Tab reserva = ReservaTab.createReservaTab(primaryStage);
+
+        tabPane.getTabs().addAll(reserva);
+        root.setCenter(tabPane);
+
+        primaryStage.setScene(scene);
     }
 }

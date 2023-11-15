@@ -1,6 +1,6 @@
 package ModuloGerente.gui;
 
-import ModuloGerente.Relatorio;
+import gui.Relatorio;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
