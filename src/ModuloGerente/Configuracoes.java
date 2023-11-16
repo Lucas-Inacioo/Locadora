@@ -19,14 +19,14 @@ import javafx.scene.control.TextField;
 
 public class Configuracoes {
     private String nomeGrupo;
-    private String valorDiaria;
-    private String valorTanque;
-    private String valorLimpezaExt;
-    private String valorLimpezaInt;
-    private String diariaSeguro;
+    private Float valorDiaria;
+    private Float valorTanque;
+    private Float valorLimpezaExt;
+    private Float valorLimpezaInt;
+    private Float diariaSeguro;
 
-    public Configuracoes(String nomeGrupo, String valorDiaria, String valorTanque, String valorLimpezaExt,
-                         String valorLimpezaInt, String diariaSeguro) {
+    public Configuracoes(String nomeGrupo, Float valorDiaria, Float valorTanque, Float valorLimpezaExt,
+                         Float valorLimpezaInt, Float diariaSeguro) {
         this.nomeGrupo = nomeGrupo;        
         this.valorDiaria = valorDiaria;
         this.valorTanque = valorTanque;
@@ -35,8 +35,8 @@ public class Configuracoes {
         this.diariaSeguro = diariaSeguro;
     }
 
-    public Configuracoes(String valorDiaria, String valorTanque, String valorLimpezaExt,
-                         String valorLimpezaInt, String diariaSeguro) {   
+    public Configuracoes(Float valorDiaria, Float valorTanque, Float valorLimpezaExt,
+                         Float valorLimpezaInt, Float diariaSeguro) {   
         this.valorDiaria = valorDiaria;
         this.valorTanque = valorTanque;
         this.valorLimpezaExt = valorLimpezaExt;
@@ -49,23 +49,23 @@ public class Configuracoes {
         return nomeGrupo;
     }
 
-    public String getValorDiaria() {
+    public Float getValorDiaria() {
         return valorDiaria;
     }
 
-    public String getValorTanque() {
+    public Float getValorTanque() {
         return valorTanque;
     }
 
-    public String getValorLimpezaExt() {
+    public Float getValorLimpezaExt() {
         return valorLimpezaExt;
     }
 
-    public String getValorLimpezaInt() {
+    public Float getValorLimpezaInt() {
         return valorLimpezaInt;
     }
 
-    public String getDiariaSeguro() {
+    public Float getDiariaSeguro() {
         return diariaSeguro;
     }
 
@@ -74,23 +74,23 @@ public class Configuracoes {
         this.nomeGrupo = nomeGrupo;
     }
 
-    public void setValorDiaria(String valorDiaria) {
+    public void setValorDiaria(Float valorDiaria) {
         this.valorDiaria = valorDiaria;
     }
 
-    public void setValorTanque(String valorTanque) {
+    public void setValorTanque(Float valorTanque) {
         this.valorTanque = valorTanque;
     }
 
-    public void setValorLimpezaExt(String valorLimpezaExt) {
+    public void setValorLimpezaExt(Float valorLimpezaExt) {
         this.valorLimpezaExt = valorLimpezaExt;
     }
 
-    public void setValorLimpezaInt(String valorLimpezaInt) {
+    public void setValorLimpezaInt(Float valorLimpezaInt) {
         this.valorLimpezaInt = valorLimpezaInt;
     }
 
-    public void setDiariaSeguro(String diariaSeguro) {
+    public void setDiariaSeguro(Float diariaSeguro) {
         this.diariaSeguro = diariaSeguro;
     }
 

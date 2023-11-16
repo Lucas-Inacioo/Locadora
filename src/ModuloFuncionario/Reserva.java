@@ -7,23 +7,27 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.HashSet;
 
+import ModuloGerente.Veiculo;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
 public class Reserva {
-    private String identificador;   
+    private Long identificador;   
     private String CPFCliente;
     private String Placa;
     private String dataRetirada;
     private String dataDevolucao;
-    private String valorLocacao;
+    private float valorLocacao;
     private String status;
 
     public Reserva(){}
 
-    public Reserva(String identificador, String CPFCliente, String Placa, String dataRetirada, 
-                   String dataDevolucao, String valorLocacao, String status) {
+    public Reserva(Long identificador, String CPFCliente, String Placa, String dataRetirada, 
+                   String dataDevolucao, float valorLocacao, String status) {
         this.identificador = identificador;
         this.CPFCliente = CPFCliente;
         this.Placa = Placa;
@@ -34,7 +38,7 @@ public class Reserva {
     }
 
     // Getters
-    public String getIdentificador() {
+    public Long getIdentificador() {
         return identificador;
     }
 
@@ -54,7 +58,7 @@ public class Reserva {
         return dataDevolucao;
     }
 
-    public String getValorLocacao() {
+    public float getValorLocacao() {
         return valorLocacao;
     }
 
@@ -63,7 +67,7 @@ public class Reserva {
     }
 
     // Setters
-    public void setIdentificador(String identificador) {
+    public void setIdentificador(Long identificador) {
         this.identificador = identificador;
     }
 
@@ -83,7 +87,7 @@ public class Reserva {
         this.dataDevolucao = dataDevolucao;
     }
 
-    public void setValorLocacao(String valorLocacao) {
+    public void setValorLocacao(float valorLocacao) {
         this.valorLocacao = valorLocacao;
     }
 
@@ -104,39 +108,62 @@ public class Reserva {
         }
     }
 
-    public static ObservableList<String> generateGrupoList() {
+    public static ObservableList<String> generateGrupoList(String dataRetirada, String dataDevolucao) {
         ObservableList<String> grupoList = FXCollections.observableArrayList();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate startDate = LocalDate.parse(dataRetirada, formatter);
+        LocalDate endDate = LocalDate.parse(dataDevolucao, formatter);
 
-        Path path = Paths.get("database", "veiculos.tsv");
-        try (BufferedReader br = Files.newBufferedReader(path)) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                String[] parts = line.split("\t");
-                String grupo = parts[5].trim();
-                if (!grupoList.contains(grupo)) {
-                    grupoList.add(grupo);
+        Path pathVeiculos = Paths.get("database", "veiculos.tsv");
+        Path pathReservas = Paths.get("database", "reservas.tsv");
+
+        try {
+            HashSet<String> reservedPlacas = new HashSet<>();
+            try (BufferedReader brReservas = Files.newBufferedReader(pathReservas)) {
+                String line;
+                while ((line = brReservas.readLine()) != null) {
+                    String[] parts = line.split("\t");
+                    LocalDate reservationStart = LocalDate.parse(parts[3].trim(), formatter);
+                    LocalDate reservationEnd = LocalDate.parse(parts[4].trim(), formatter);
+
+                    if (!(endDate.isBefore(reservationStart) || startDate.isAfter(reservationEnd))) {
+                        reservedPlacas.add(parts[2].trim());
+                    }
+                }
+            }
+
+            try (BufferedReader brVeiculos = Files.newBufferedReader(pathVeiculos)) {
+                String line;
+                while ((line = brVeiculos.readLine()) != null) {
+                    String[] parts = line.split("\t");
+                    String placa = parts[0].trim();
+                    String grupo = parts[5].trim();
+
+                    if (!reservedPlacas.contains(placa) && !grupoList.contains(grupo)) {
+                        grupoList.add(grupo);
+                    }
                 }
             }
         } catch (IOException e) {
             System.out.println("Failed to read file: " + e.getMessage());
             e.printStackTrace();
         }
-        
+
         return grupoList;
     }
 
-    public static ObservableList<String> generatePlacaList(String selectedGrupo) {
-        ObservableList<String> placaList = FXCollections.observableArrayList();
-
+    public static ObservableList<Veiculo> generateVeiculosList(String selectedGrupo) {
+        ObservableList<Veiculo> veiculosList = FXCollections.observableArrayList();
+    
         Path path = Paths.get("database", "veiculos.tsv");
         try (BufferedReader br = Files.newBufferedReader(path)) {
             String line;
             while ((line = br.readLine()) != null) {
                 String[] parts = line.split("\t");
-                String placa = parts[0].trim();
                 String grupo = parts[5].trim();
                 if (grupo.equals(selectedGrupo)) {
-                    placaList.add(placa);
+                    Veiculo veiculo = new Veiculo(parts[0].trim(), parts[1].trim(), parts[2].trim(), parts[3].trim(), parts[4].trim(), parts[5].trim(), parts[6].trim());
+                    veiculosList.add(veiculo);
                 }
             }
         } catch (IOException e) {
@@ -144,6 +171,49 @@ public class Reserva {
             e.printStackTrace();
         }
         
-        return placaList;
+        return veiculosList;
+    }
+
+    public static float calculateLocacaoPrice(String selectedGrupo, Boolean contractedSeguro, Boolean contractedLimpezaInt, Boolean contractedLimpezaExt, long daysBetween) {
+        Path pathConfiguracoes = Paths.get("database", "configuracoes.tsv");
+
+        try (BufferedReader br = Files.newBufferedReader(pathConfiguracoes)) {
+            String line;
+            float diaria = 0;
+            float limpezaExt = 0;
+            float limpezaint = 0;
+            float seguro = 0;
+
+            while ((line = br.readLine()) != null) {
+                String[] parts = line.split("\t");
+                String grupo = parts[0].trim();
+                if (grupo.equals(selectedGrupo)) {
+                    diaria = Float.parseFloat(parts[1].trim());
+                    limpezaExt = Float.parseFloat(parts[3].trim());
+                    limpezaint = Float.parseFloat(parts[4].trim());
+                    seguro = Float.parseFloat(parts[5].trim());
+                    break;
+                }
+            }
+
+            float total = diaria * daysBetween; 
+            if (contractedSeguro) {
+                total += seguro * daysBetween;
+            }
+            if (contractedLimpezaInt) {
+                total += limpezaint;
+            }
+            if (contractedLimpezaExt) {
+                total += limpezaExt;
+            }
+
+            return total;
+
+        } catch (IOException e) {
+            System.out.println("Failed to read file: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        return 0;
     }
 }
