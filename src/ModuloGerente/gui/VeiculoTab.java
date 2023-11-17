@@ -135,12 +135,12 @@ public class VeiculoTab {
                 return;
             }
 
-            String placa = placaField.getText();
-            String marca = marcaField.getText();
-            String modelo = modeloField.getText();
-            String cor = corField.getText();
-            String ano = anoFabricacaoField.getText();
-            String grupo = nomeGrupoField.getValue();
+            String placa = placaField.getText().replaceAll(" ", "");
+            String marca = marcaField.getText().replaceAll(" ", "");
+            String modelo = modeloField.getText().replaceAll(" ", "");
+            String cor = corField.getText().replaceAll(" ", "");
+            String ano = anoFabricacaoField.getText().replaceAll(" ", "");
+            String grupo = nomeGrupoField.getValue().replaceAll(" ", "");
 
             if (Veiculo.duplicatedVeiculo(placa)) {
                 Alert alert = new Alert(Alert.AlertType.WARNING); 
@@ -164,12 +164,12 @@ public class VeiculoTab {
 
             if (confirmation(placa, marca, modelo, cor, ano, grupo)) {
                 Veiculo veiculo = new Veiculo(
-                    placa.toUpperCase().replaceAll(" ", ""),
-                    marca.toUpperCase().replaceAll(" ", ""),
-                    modelo.toUpperCase().replaceAll(" ", ""),
-                    cor.toUpperCase().replaceAll(" ", ""),
-                    ano.toUpperCase().replaceAll(" ", ""),
-                    grupo.toUpperCase().replaceAll(" ", ""),
+                    placa.toUpperCase(),
+                    marca.toUpperCase(),
+                    modelo.toUpperCase(),
+                    cor.toUpperCase(),
+                    ano.toUpperCase(),
+                    grupo.toUpperCase(),
                     "DISPONIVEL"
                 );
                 veiculo.saveVeiculo();
