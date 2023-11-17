@@ -151,8 +151,8 @@ public class ReservaTab {
                 Veiculo selectedCar = tableView.getSelectionModel().getSelectedItem();
                 
                 String placa = selectedCar.getPlaca();
-                long generatedLong = new Random().nextLong();
-                if (generatedLong < 0) {generatedLong = generatedLong * -1;}
+                long idLocacao = new Random().nextLong();
+                if (idLocacao < 0) {idLocacao = idLocacao * -1;}
 
                 TextInputDialog cpfDialog = new TextInputDialog();
                 cpfDialog.setTitle("Cliente CPF");
@@ -161,8 +161,17 @@ public class ReservaTab {
 
                 Optional<String> cpfResult = cpfDialog.showAndWait();
                 String CPF = cpfResult.isPresent() ? cpfResult.get() : null;
-                
+
+                if (CPF == null || CPF.trim().isEmpty()) {
+                    return;
+                }
+
                 List<Boolean> desiredServices = displayServices();
+                
+                if (desiredServices == null) {
+                    return;
+                }
+                
                 Boolean seguro = desiredServices.get(0);
                 Boolean limpezaInt = desiredServices.get(1);
                 Boolean limpezaExt = desiredServices.get(2);
@@ -174,25 +183,22 @@ public class ReservaTab {
 
                 float valorlocacao = Reserva.calculateLocacaoPrice(selectedGrupo, seguro, limpezaInt, limpezaExt, daysBetween);
 
-                if (CPF != null && !CPF.trim().isEmpty()) {
-                    Reserva reserva = new Reserva(
-                        generatedLong,
-                        CPF,
-                        placa,
-                        dataRetirada,
-                        dataDevolucao,
-                        valorlocacao,
-                        "a"
-                    );
-                    reserva.saveReserva();
+                Reserva reserva = new Reserva(
+                    idLocacao,
+                    CPF,
+                    placa,
+                    dataRetirada,
+                    dataDevolucao,
+                    valorlocacao,
+                    "ATIVA",
+                    seguro,
+                    limpezaInt,
+                    limpezaExt
+                );
+                reserva.saveReserva();
 
-                    Alert alert = new Alert(Alert.AlertType.INFORMATION, "Reserva feita para o CPF: " + CPF);
-                    alert.showAndWait();
-                }
-                else {
-                    Alert alert = new Alert(Alert.AlertType.WARNING, "CPF Não pode ser vazio");
-                    alert.showAndWait();
-                }
+                Alert alert = new Alert(Alert.AlertType.INFORMATION, "Reserva feita para o CPF: " + CPF);
+                alert.showAndWait();
             }
         });
 
@@ -223,6 +229,6 @@ public class ReservaTab {
 
         Optional<List<Boolean>> result = dialog.showAndWait();
 
-        return result.orElseGet(() -> Arrays.asList(false, false, false));
+        return result.orElse(null);
     }
 }

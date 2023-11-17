@@ -23,11 +23,15 @@ public class Reserva {
     private String dataDevolucao;
     private float valorLocacao;
     private String status;
+    private Boolean contractedSeguro; 
+    private Boolean contractedLimpezaInt; 
+    private Boolean contractedLimpezaExt;
 
     public Reserva(){}
 
-    public Reserva(Long identificador, String CPFCliente, String Placa, String dataRetirada, 
-                   String dataDevolucao, float valorLocacao, String status) {
+    public Reserva( Long identificador, String CPFCliente, String Placa, String dataRetirada, 
+                    String dataDevolucao, float valorLocacao, String status, Boolean contractedSeguro,
+                    Boolean contractedLimpezaInt, Boolean contractedLimpezaExt) {
         this.identificador = identificador;
         this.CPFCliente = CPFCliente;
         this.Placa = Placa;
@@ -35,6 +39,9 @@ public class Reserva {
         this.dataDevolucao = dataDevolucao;
         this.valorLocacao = valorLocacao;
         this.status = status;
+        this.contractedSeguro = contractedSeguro;
+        this.contractedLimpezaInt = contractedLimpezaInt;
+        this.contractedLimpezaExt = contractedLimpezaExt;
     }
 
     // Getters
@@ -66,6 +73,18 @@ public class Reserva {
         return status;
     }
 
+    public Boolean getContractedSeguro() {
+        return contractedSeguro;
+    }
+
+    public Boolean getContractedLimpezaInt() {
+        return contractedLimpezaInt;
+    }
+
+    public Boolean getContractedLimpezaExt() {
+        return contractedLimpezaExt;
+    }
+
     // Setters
     public void setIdentificador(Long identificador) {
         this.identificador = identificador;
@@ -95,11 +114,33 @@ public class Reserva {
         this.status = status;
     }
 
+    public void setContractedSeguro(Boolean contractedSeguro) {
+        this.contractedSeguro = contractedSeguro;
+    }
+
+    public void setContractedLimpezaInt(Boolean contractedLimpezaInt) {
+        this.contractedLimpezaInt = contractedLimpezaInt;
+    }
+
+    public void setContractedLimpezaExt(Boolean contractedLimpezaExt) {
+        this.contractedLimpezaExt = contractedLimpezaExt;
+    }
+
     public void saveReserva() {
         String data =   identificador + "\t" + CPFCliente + "\t" + Placa + "\t" + dataRetirada + "\t" + 
                         dataDevolucao + "\t" + valorLocacao + "\t" + status + "\n";
 
         String relativePath = "database/reservas.tsv";
+
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(relativePath, true))) {
+            writer.write(data);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        data =  identificador + "\t" + contractedSeguro + "\t" + contractedLimpezaInt + "\t" + 
+                contractedLimpezaExt + "\n";
+        relativePath = "database/reservasDetalhes.tsv";
 
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(relativePath, true))) {
             writer.write(data);
