@@ -126,4 +126,29 @@ public class Veiculo {
             System.out.println("Could not delete the original file.");
         }
     }
+
+    public static Boolean duplicatedVeiculo(String placa) {
+        String relativePath = "database/veiculos.tsv";
+        File configFile = new File(relativePath);
+        boolean duplicated = false;
+
+        if (configFile.exists()) {
+            try (BufferedReader reader = new BufferedReader(new FileReader(configFile))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    if (line.startsWith(placa + "\t")) {
+                        duplicated = true;
+                        break;
+                    }
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        if (duplicated) {
+            return true;
+        }
+        return false;
+    }
 }

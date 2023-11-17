@@ -6,6 +6,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
@@ -94,13 +95,52 @@ public class VeiculoTab {
         veiculoGrid.add(nomeGrupoLabel, 0, 5);
         veiculoGrid.add(nomeGrupoField, 1, 5);
 
-        Label carStatusLabel = new Label("Status do Veículo:");
-        TextField carStatusField = new TextField();
-        veiculoGrid.add(carStatusLabel, 0, 6);
-        veiculoGrid.add(carStatusField, 1, 6);
-
         Button submitButton = new Button("Registrar Veículo");
         submitButton.setOnAction(e -> {
+            Boolean placaEmpty = false, marcaEmpty = false, modeloEmpty = false, corEmpty = false, anoEmpty = false;
+            String emptyFields = "Os seguintes campos precisam ser preenchidos: ";
+
+            if (placaField.getText().trim().isEmpty()) {
+                placaEmpty = true;
+                emptyFields += "| PLACA |";
+            }
+            if (marcaField.getText().trim().isEmpty()) {
+                marcaEmpty = true;
+                emptyFields += "| MARCA |";
+            }
+            if (modeloField.getText().trim().isEmpty()) {
+                modeloEmpty = true;
+                emptyFields += "| MODELO |";
+            }   
+            if (corField.getText().trim().isEmpty()) {
+                corEmpty = true;
+                emptyFields += "| COR |";
+            }
+            if (anoFabricacaoField.getText().trim().isEmpty()) {
+                anoEmpty = true;
+                emptyFields += "| ANO |";
+            }
+
+            if (placaEmpty || marcaEmpty || modeloEmpty || corEmpty || anoEmpty) {
+                Alert alert = new Alert(Alert.AlertType.WARNING); 
+                alert.setTitle("Campos Faltando");
+                alert.setHeaderText(null); 
+                alert.setContentText(emptyFields);
+
+                alert.showAndWait();
+                return;
+            }
+
+            if (Veiculo.duplicatedVeiculo(placaField.getText())) {
+                Alert alert = new Alert(Alert.AlertType.WARNING); 
+                alert.setTitle("Veículo duplicado");
+                alert.setHeaderText(null); 
+                alert.setContentText("Veículo de placa " + placaField.getText() + " já cadastrado, favor verificar!");
+
+                alert.showAndWait();
+                return;
+            }
+
             Veiculo veiculo = new Veiculo(
                 placaField.getText(),
                 marcaField.getText(),
@@ -108,9 +148,16 @@ public class VeiculoTab {
                 corField.getText(),
                 anoFabricacaoField.getText(),
                 nomeGrupoField.getValue(),
-                carStatusField.getText()
+                "DISPONIVEL"
             );
             veiculo.saveVeiculo();
+
+            Alert alert = new Alert(Alert.AlertType.INFORMATION); 
+            alert.setTitle("Sucesso");
+            alert.setHeaderText(null); 
+            alert.setContentText("Veículo de placa " + placaField.getText() + " cadastrado com sucesso!");
+
+            alert.showAndWait();
         });
         veiculoGrid.add(submitButton, 1, 7);
     }
