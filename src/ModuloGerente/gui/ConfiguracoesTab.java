@@ -36,7 +36,7 @@ public class ConfiguracoesTab {
         operationalGrid.add(secondColLabel, 2, 0);
 
         // Third Column
-        Label thirdColLabel = new Label("Configuração VIP");
+        Label thirdColLabel = new Label("Configuração PREMIUM");
         operationalGrid.add(thirdColLabel, 4, 0);
 
         // Add content for the first column
@@ -92,30 +92,30 @@ public class ConfiguracoesTab {
         operationalGrid.add(diariaSeguroFieldPadrao, 3, 5);
 
         // Add content for the third column
-        Label valorDiariaLabelVIP = new Label("Valor da Diária:");
-        TextField valorDiariaFieldVIP = new TextField();
-        operationalGrid.add(valorDiariaLabelVIP, 4, 1);
-        operationalGrid.add(valorDiariaFieldVIP, 5, 1);
+        Label valorDiariaLabelPremium = new Label("Valor da Diária:");
+        TextField valorDiariaFieldPremium = new TextField();
+        operationalGrid.add(valorDiariaLabelPremium, 4, 1);
+        operationalGrid.add(valorDiariaFieldPremium, 5, 1);
 
-        Label valorTanqueLabelVIP = new Label("Valor Para Encher o Tanque:");
-        TextField valorTanqueFieldVIP = new TextField();
-        operationalGrid.add(valorTanqueLabelVIP, 4, 2);
-        operationalGrid.add(valorTanqueFieldVIP, 5, 2);
+        Label valorTanqueLabelPremium = new Label("Valor Para Encher o Tanque:");
+        TextField valorTanqueFieldPremium = new TextField();
+        operationalGrid.add(valorTanqueLabelPremium, 4, 2);
+        operationalGrid.add(valorTanqueFieldPremium, 5, 2);
 
-        Label valorLimpezaExtLabelVIP = new Label("Valor da Limpeza Externa:");
-        TextField valorLimpezaExtFieldVIP = new TextField();
-        operationalGrid.add(valorLimpezaExtLabelVIP, 4, 3);
-        operationalGrid.add(valorLimpezaExtFieldVIP, 5, 3);
+        Label valorLimpezaExtLabelPremium = new Label("Valor da Limpeza Externa:");
+        TextField valorLimpezaExtFieldPremium = new TextField();
+        operationalGrid.add(valorLimpezaExtLabelPremium, 4, 3);
+        operationalGrid.add(valorLimpezaExtFieldPremium, 5, 3);
 
-        Label valorLimpezaintLabelVIP = new Label("Valor da Limpeza Interna:");
-        TextField valorLimpezaintFieldVIP = new TextField();
-        operationalGrid.add(valorLimpezaintLabelVIP, 4, 4);
-        operationalGrid.add(valorLimpezaintFieldVIP, 5, 4);
+        Label valorLimpezaintLabelPremium = new Label("Valor da Limpeza Interna:");
+        TextField valorLimpezaintFieldPremium = new TextField();
+        operationalGrid.add(valorLimpezaintLabelPremium, 4, 4);
+        operationalGrid.add(valorLimpezaintFieldPremium, 5, 4);
 
-        Label diariaSeguroLabelVIP = new Label("Valor da Diária do Seguro:");
-        TextField diariaSeguroFieldVIP = new TextField();
-        operationalGrid.add(diariaSeguroLabelVIP, 4, 5);
-        operationalGrid.add(diariaSeguroFieldVIP, 5, 5);
+        Label diariaSeguroLabelPremium = new Label("Valor da Diária do Seguro:");
+        TextField diariaSeguroFieldPremium = new TextField();
+        operationalGrid.add(diariaSeguroLabelPremium, 4, 5);
+        operationalGrid.add(diariaSeguroFieldPremium, 5, 5);
 
         Button submitButton = new Button("Registrar Configurações");
         submitButton.setOnAction(e -> {
@@ -137,16 +137,16 @@ public class ConfiguracoesTab {
                 diariaSeguroFieldPadrao.getText()
             );
         
-            List<String> vipValues = Arrays.asList(
-                "VIP",
-                valorDiariaFieldVIP.getText(),
-                valorTanqueFieldVIP.getText(),
-                valorLimpezaExtFieldVIP.getText(),
-                valorLimpezaintFieldVIP.getText(),
-                diariaSeguroFieldVIP.getText()
+            List<String> premiumValues = Arrays.asList(
+                "PREMIUM",
+                valorDiariaFieldPremium.getText(),
+                valorTanqueFieldPremium.getText(),
+                valorLimpezaExtFieldPremium.getText(),
+                valorLimpezaintFieldPremium.getText(),
+                diariaSeguroFieldPremium.getText()
             );
         
-            List<List<String>> allConfigurations = Arrays.asList(basicoValues, padraoValues, vipValues);
+            List<List<String>> allConfigurations = Arrays.asList(basicoValues, padraoValues, premiumValues);
         
             Configuracoes.saveMultiConfiguracoes(allConfigurations);
         });
@@ -156,7 +156,7 @@ public class ConfiguracoesTab {
 
         Configuracoes.setConfigValues(allConfigValues.get("BASICO"), valorDiariaFieldBasico, valorTanqueFieldBasico, valorLimpezaExtFieldBasico, valorLimpezaintFieldBasico, diariaSeguroFieldBasico);
         Configuracoes.setConfigValues(allConfigValues.get("PADRAO"), valorDiariaFieldPadrao, valorTanqueFieldPadrao, valorLimpezaExtFieldPadrao, valorLimpezaintFieldPadrao, diariaSeguroFieldPadrao);
-        Configuracoes.setConfigValues(allConfigValues.get("VIP"), valorDiariaFieldVIP, valorTanqueFieldVIP, valorLimpezaExtFieldVIP, valorLimpezaintFieldVIP, diariaSeguroFieldVIP);
+        Configuracoes.setConfigValues(allConfigValues.get("PREMIUM"), valorDiariaFieldPremium, valorTanqueFieldPremium, valorLimpezaExtFieldPremium, valorLimpezaintFieldPremium, diariaSeguroFieldPremium);
     }
 
 }

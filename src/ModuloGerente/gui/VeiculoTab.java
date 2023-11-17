@@ -8,8 +8,12 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+
+import java.util.Optional;
+
 import ModuloGerente.Veiculo;
 
 public class VeiculoTab {
@@ -90,7 +94,7 @@ public class VeiculoTab {
 
         Label nomeGrupoLabel = new Label("Nome do Grupo:");
         ComboBox<String> nomeGrupoField = new ComboBox<>();
-        nomeGrupoField.getItems().addAll("BASICO", "PADRAO", "VIP");
+        nomeGrupoField.getItems().addAll("BASICO", "PADRAO", "PREMIUM");
         nomeGrupoField.setValue("BASICO");
         veiculoGrid.add(nomeGrupoLabel, 0, 5);
         veiculoGrid.add(nomeGrupoField, 1, 5);
@@ -131,33 +135,52 @@ public class VeiculoTab {
                 return;
             }
 
-            if (Veiculo.duplicatedVeiculo(placaField.getText())) {
+            String placa = placaField.getText();
+            String marca = marcaField.getText();
+            String modelo = modeloField.getText();
+            String cor = corField.getText();
+            String ano = anoFabricacaoField.getText();
+            String grupo = nomeGrupoField.getValue();
+
+            if (Veiculo.duplicatedVeiculo(placa)) {
                 Alert alert = new Alert(Alert.AlertType.WARNING); 
                 alert.setTitle("Veículo duplicado");
                 alert.setHeaderText(null); 
-                alert.setContentText("Veículo de placa " + placaField.getText() + " já cadastrado, favor verificar!");
+                alert.setContentText("Veículo de placa " + placa + " já cadastrado, favor verificar!");
 
                 alert.showAndWait();
                 return;
             }
 
-            Veiculo veiculo = new Veiculo(
-                placaField.getText(),
-                marcaField.getText(),
-                modeloField.getText(),
-                corField.getText(),
-                anoFabricacaoField.getText(),
-                nomeGrupoField.getValue(),
-                "DISPONIVEL"
-            );
-            veiculo.saveVeiculo();
+            if (!Veiculo.isValidPlaca(placa)) {
+                Alert alert = new Alert(Alert.AlertType.WARNING); 
+                alert.setTitle("Placa inválida");
+                alert.setHeaderText(null); 
+                alert.setContentText("A placa inserida precisa seguir o padrão LLLNLNN");
 
-            Alert alert = new Alert(Alert.AlertType.INFORMATION); 
-            alert.setTitle("Sucesso");
-            alert.setHeaderText(null); 
-            alert.setContentText("Veículo de placa " + placaField.getText() + " cadastrado com sucesso!");
+                alert.showAndWait();
+                return;
+            }
 
-            alert.showAndWait();
+            if (confirmation(placa, marca, modelo, cor, ano, grupo)) {
+                Veiculo veiculo = new Veiculo(
+                    placa.toUpperCase().replaceAll(" ", ""),
+                    marca.toUpperCase().replaceAll(" ", ""),
+                    modelo.toUpperCase().replaceAll(" ", ""),
+                    cor.toUpperCase().replaceAll(" ", ""),
+                    ano.toUpperCase().replaceAll(" ", ""),
+                    grupo.toUpperCase().replaceAll(" ", ""),
+                    "DISPONIVEL"
+                );
+                veiculo.saveVeiculo();
+
+                Alert alert = new Alert(Alert.AlertType.INFORMATION); 
+                alert.setTitle("Sucesso");
+                alert.setHeaderText(null); 
+                alert.setContentText("Veículo de placa " + placa + " cadastrado com sucesso!");
+
+                alert.showAndWait();
+            }
         });
         veiculoGrid.add(submitButton, 1, 7);
     }
@@ -181,5 +204,23 @@ public class VeiculoTab {
             Veiculo.deleteVeiculo(placaField.getText(), motivoField.getText());
         });
         veiculoGrid.add(submitButton, 1, 2);
+    }
+    
+    private static Boolean confirmation(String placa, String marca, String modelo,
+                                        String cor, String anoFabricacao, String nomeGrupo) {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION); 
+        alert.setTitle("Criar veículo?");
+        alert.setHeaderText(null); 
+        alert.setContentText(
+                    "Placa: " + placa + "\n" +
+                    "Marca: " + marca + "\n" +
+                    "Modelo: " + modelo + "\n" +
+                    "Cor: " + cor + "\n" +
+                    "Ano: " + anoFabricacao + "\n" +
+                    "Grupo: " + nomeGrupo
+                    );
+
+        Optional<ButtonType> result = alert.showAndWait();
+        return result.isPresent() && result.get() == ButtonType.OK;
     }
 }

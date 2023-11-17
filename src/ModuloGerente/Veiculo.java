@@ -151,4 +151,9 @@ public class Veiculo {
         }
         return false;
     }
+
+    public static Boolean isValidPlaca(String placa) {
+        String regex = "^[A-Za-z]{3}\\d[A-Za-z]\\d{2}$";
+        return placa.matches(regex);
+    }
 }
