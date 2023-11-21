@@ -1,15 +1,22 @@
 package ModuloGerente.gui;
 
 import javafx.scene.control.Tab;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
+import javafx.collections.ObservableList;
+import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 
 import java.util.Optional;
@@ -194,23 +201,112 @@ public class VeiculoTab {
         veiculoGrid.add(placaLabel, 0, 0);
         veiculoGrid.add(placaField, 1, 0);
 
-        Label motivoLabel = new Label("Motivo da Exclusão:");
-        TextField motivoField = new TextField();
-        veiculoGrid.add(motivoLabel, 0, 1);
-        veiculoGrid.add(motivoField, 1, 1);
-
-        Button submitButton = new Button("Excluir Veículo");
-        submitButton.setOnAction(e -> {
-            Veiculo.deleteVeiculo(placaField.getText(), motivoField.getText());
-        });
-        veiculoGrid.add(submitButton, 1, 2);
+        addDeleteSubmit(veiculoGrid);
     }
     
+    private static void displaygenerateVeiculos(GridPane veiculoGrid) {
+        removeNode(veiculoGrid);
+        
+        ObservableList<Veiculo> veiculosList = Veiculo.generateVeiculosDisponiveis();
+        TableView<Veiculo> tableView = new TableView<>(veiculosList);
+    
+        TableColumn<Veiculo, String> placaColumn = new TableColumn<>("Placa");
+        placaColumn.setCellValueFactory(new PropertyValueFactory<>("placa"));
+    
+        TableColumn<Veiculo, String> marcaColumn = new TableColumn<>("Marca");
+        marcaColumn.setCellValueFactory(new PropertyValueFactory<>("marca"));
+    
+        TableColumn<Veiculo, String> modeloColumn = new TableColumn<>("Modelo");
+        modeloColumn.setCellValueFactory(new PropertyValueFactory<>("modelo"));
+    
+        TableColumn<Veiculo, String> corColumn = new TableColumn<>("Cor");
+        corColumn.setCellValueFactory(new PropertyValueFactory<>("cor"));
+    
+        TableColumn<Veiculo, String> anoFabricacaoColumn = new TableColumn<>("Ano");
+        anoFabricacaoColumn.setCellValueFactory(new PropertyValueFactory<>("anoFabricação"));
+    
+        TableColumn<Veiculo, String> nomeGrupoColumn = new TableColumn<>("Grupo");
+        nomeGrupoColumn.setCellValueFactory(new PropertyValueFactory<>("nomeGrupo"));
+    
+        TableColumn<Veiculo, String> statusColumn = new TableColumn<>("Status");
+        statusColumn.setCellValueFactory(new PropertyValueFactory<>("status"));
+    
+        tableView.getColumns().add(placaColumn);
+        tableView.getColumns().add(marcaColumn);
+        tableView.getColumns().add(modeloColumn);
+        tableView.getColumns().add(corColumn);
+        tableView.getColumns().add(anoFabricacaoColumn);
+        tableView.getColumns().add(nomeGrupoColumn);
+        tableView.getColumns().add(statusColumn);
+        
+        statusColumn.prefWidthProperty().bind(tableView.widthProperty().subtract(
+            placaColumn.widthProperty()
+            .add(marcaColumn.widthProperty())
+            .add(modeloColumn.widthProperty())
+            .add(corColumn.widthProperty())
+            .add(anoFabricacaoColumn.widthProperty())
+            .add(nomeGrupoColumn.widthProperty())
+        ));
+
+        tableView.setOnMouseClicked(event -> {
+            if (event.getClickCount() == 2 && !tableView.getSelectionModel().isEmpty()) {
+                Veiculo selectedCar = tableView.getSelectionModel().getSelectedItem();
+                
+                String placa = selectedCar.getPlaca();
+                String marca = selectedCar.getMarca();
+                String modelo = selectedCar.getModelo();
+                String cor = selectedCar.getCor();
+                String ano = selectedCar.getAnoFabricação();
+                String grupo = selectedCar.getNomeGrupo();
+
+                String selectedMotivo = motivoDialog();
+                if (selectedMotivo == null) {
+                    return;
+                }
+
+                if (confirmation(placa, marca, modelo, cor, ano, grupo, selectedMotivo)) {
+                    Veiculo.deleteVeiculo(placa, selectedMotivo);
+                    Alert alert = new Alert(Alert.AlertType.INFORMATION, "Veículo de placa: " + placa + " excluído com sucesso!");
+                    alert.showAndWait();
+                    removeNode(veiculoGrid);
+                    addDeleteSubmit(veiculoGrid);
+                }
+            }
+        });
+
+        veiculoGrid.add(tableView, 0, 2, 7, 10);
+    }
+
+    private static String motivoDialog() {
+        Dialog<String> dialog = new Dialog<>();
+        dialog.setTitle("Select Motivo");
+
+        ButtonType confirmButtonType = new ButtonType("Confirm", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(confirmButtonType, ButtonType.CANCEL);
+
+        ComboBox<String> comboBox = new ComboBox<>();
+        comboBox.getItems().addAll("Venda", "Roubo/Furto", "Acidente com perda total", "Outro");
+        comboBox.setValue("Venda");
+
+        dialog.getDialogPane().setContent(comboBox);
+
+        dialog.setResultConverter(dialogButton -> {
+            if (dialogButton == confirmButtonType) {
+                return comboBox.getValue();
+            }
+            return null;
+        });
+
+        Optional<String> result = dialog.showAndWait();
+
+        return result.orElse(null);
+    }
+
     private static Boolean confirmation(String placa, String marca, String modelo,
                                         String cor, String anoFabricacao, String nomeGrupo) {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION); 
         alert.setTitle("Criar veículo?");
-        alert.setHeaderText(null); 
+        alert.setHeaderText("Você está prestes a criar o seguinte veículo: "); 
         alert.setContentText(
                     "Placa: " + placa + "\n" +
                     "Marca: " + marca + "\n" +
@@ -222,5 +318,110 @@ public class VeiculoTab {
 
         Optional<ButtonType> result = alert.showAndWait();
         return result.isPresent() && result.get() == ButtonType.OK;
+    }
+
+    private static Boolean confirmation(String placa, String marca, String modelo,
+                                        String cor, String anoFabricacao, String nomeGrupo, String motivo) {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION); 
+        alert.setTitle("Excluir veículo?");
+        alert.setHeaderText("Você está prestes a excluir o seguinte veículo: "); 
+        alert.setContentText(
+                    "Placa: " + placa + "\n" +
+                    "Marca: " + marca + "\n" +
+                    "Modelo: " + modelo + "\n" +
+                    "Cor: " + cor + "\n" +
+                    "Ano: " + anoFabricacao + "\n" +
+                    "Grupo: " + nomeGrupo + "\n" +
+                    "Motivo da exclusão: " + motivo
+                    );
+
+        Optional<ButtonType> result = alert.showAndWait();
+        return result.isPresent() && result.get() == ButtonType.OK;
+    }
+
+    private static void removeNode(GridPane veiculoGrid) {
+        Node toRemove = null;
+        for (Node node : veiculoGrid.getChildren()) {
+            if (GridPane.getRowIndex(node) != null && GridPane.getRowIndex(node) == 2 && 
+                GridPane.getColumnIndex(node) != null && GridPane.getColumnIndex(node) == 0) {
+                toRemove = node;
+                break;
+            }
+        }
+        if (toRemove != null) {
+            veiculoGrid.getChildren().remove(toRemove);
+        }
+    }
+
+    private static void addDeleteSubmit(GridPane veiculoGrid) {
+        int placaFieldRow = 0;
+        int placaFieldColumn = 1;
+
+        TextField placaField = findTextFieldByGridPosition(veiculoGrid, placaFieldRow, placaFieldColumn);
+
+        Button submitButton = new Button("Excluir Veículo");
+        submitButton.setOnAction(e -> {
+            if (placaField.getText().trim().isEmpty()) {
+                displaygenerateVeiculos(veiculoGrid);
+            }
+            else {
+                String placa = placaField.getText();
+                if (!Veiculo.duplicatedVeiculo(placa)) {
+                    Alert alert = new Alert(Alert.AlertType.WARNING); 
+                    alert.setTitle("Veículo não encontrado");
+                    alert.setHeaderText("Veículo não encontrado"); 
+                    alert.setContentText("Veículo de placa " + placa + " não encontrado, favor verificar!");
+
+                    alert.showAndWait();
+                    return;
+                }
+
+                if (!Veiculo.isLocado(placa)) {
+                    Alert alert = new Alert(Alert.AlertType.WARNING); 
+                    alert.setTitle("Veículo locado ");
+                    alert.setHeaderText("Veículo locado"); 
+                    alert.setContentText("Veículo de placa " + placa + " encontra-se, no momento, locado!");
+
+                    alert.showAndWait();
+                    return;
+                }
+
+                if (!Veiculo.isDisponivel(placa)) {
+                    Alert alert = new Alert(Alert.AlertType.WARNING); 
+                    alert.setTitle("Veículo indisponível ");
+                    alert.setHeaderText("Veículo indisponível"); 
+                    alert.setContentText("Veículo de placa " + placa + " encontra-se, no momento, indisponível!");
+
+                    alert.showAndWait();
+                    return;
+                }
+
+                String selectedMotivo = motivoDialog();
+                if (selectedMotivo == null) {
+                    return;
+                }
+
+                Veiculo veiculo = Veiculo.getVeiculoByPlaca(placa);
+                if (veiculo != null && confirmation(veiculo.getPlaca(), veiculo.getMarca(), veiculo.getModelo(), veiculo.getCor(), veiculo.getAnoFabricação(), veiculo.getNomeGrupo(), selectedMotivo)) {
+                    Veiculo.deleteVeiculo(placa, selectedMotivo);
+                    Alert alert = new Alert(Alert.AlertType.INFORMATION, "Veículo de placa: " + placa + " excluído com sucesso!");
+                    alert.showAndWait();
+
+                    placaField.setText("");
+                }
+            }
+        });
+        veiculoGrid.add(submitButton, 0, 2);
+    }
+
+    private static TextField findTextFieldByGridPosition(GridPane gridPane, int row, int column) {
+        for (Node node : gridPane.getChildren()) {
+            if (GridPane.getRowIndex(node) != null && GridPane.getRowIndex(node) == row 
+                && GridPane.getColumnIndex(node) != null && GridPane.getColumnIndex(node) == column 
+                && node instanceof TextField) {
+                return (TextField) node;
+            }
+        }
+        return null;
     }
 }

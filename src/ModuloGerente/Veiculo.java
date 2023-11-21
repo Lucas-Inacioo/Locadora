@@ -7,6 +7,9 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import javafx.collections.ObservableList;
+import javafx.collections.FXCollections;
+
 public class Veiculo {
     private String placa;
     private String marca;
@@ -109,7 +112,7 @@ public class Veiculo {
             while ((currentLine = reader.readLine()) != null) {
                 String[] data = currentLine.split("\t");
                 if (data[0].equals(placa)) {
-                    data[6] = "indisponivel - " + reason;
+                    data[6] = "INDISPONIVEL - " + reason.toUpperCase();
                     currentLine = String.join("\t", data);
                 }
                 writer.write(currentLine + System.lineSeparator());
@@ -155,5 +158,105 @@ public class Veiculo {
     public static Boolean isValidPlaca(String placa) {
         String regex = "^[A-Za-z]{3}\\d[A-Za-z]\\d{2}$";
         return placa.matches(regex);
+    }
+
+    public static ObservableList<Veiculo> generateVeiculosDisponiveis() {
+        String relativePath = "database/veiculos.tsv";
+        File configFile = new File(relativePath);
+
+        ObservableList<Veiculo> veiculos = FXCollections.observableArrayList();
+
+        if (configFile.exists()) {
+            try (BufferedReader reader = new BufferedReader(new FileReader(configFile))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    String[] data = line.split("\t");
+                    if (data[6].equals("DISPONIVEL")) {
+                        Veiculo veiculo = new Veiculo(data[0], data[1], data[2], data[3], data[4], data[5], data[6]);
+                        veiculos.add(veiculo);
+                    }
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return veiculos;
+    }
+
+    public static Veiculo getVeiculoByPlaca(String placa) {
+        String relativePath = "database/veiculos.tsv";
+        File configFile = new File(relativePath);
+
+        Veiculo veiculo = null;
+
+        if (configFile.exists()) {
+            try (BufferedReader reader = new BufferedReader(new FileReader(configFile))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    String[] data = line.split("\t");
+                    if (data[0].equals(placa)) {
+                        veiculo = new Veiculo(data[0], data[1], data[2], data[3], data[4], data[5], data[6]);
+                        break;
+                    }
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return veiculo;
+    }
+
+    public static Boolean isDisponivel(String placa) {
+        String relativePath = "database/veiculos.tsv";
+        File configFile = new File(relativePath);
+        boolean disponivel = false;
+
+        if (configFile.exists()) {
+            try (BufferedReader reader = new BufferedReader(new FileReader(configFile))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    String[] data = line.split("\t");
+                    if (data[0].equals(placa) && data[6].equals("DISPONIVEL")) {
+                        disponivel = true;
+                        break;
+                    }
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        if (disponivel) {
+            return true;
+        }
+        return false;
+    }
+
+    public static Boolean isLocado(String placa) {
+        String relativePath = "database/veiculos.tsv";
+        File configFile = new File(relativePath);
+        boolean locado = false;
+
+        if (configFile.exists()) {
+            try (BufferedReader reader = new BufferedReader(new FileReader(configFile))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    String[] data = line.split("\t");
+                    if (data[0].equals(placa) && (data[6].equals("RESERVADO") || data[6].equals("LOCADO"))) {
+                        locado = true;
+                        break;
+                    }
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        if (locado) {
+            return true;
+        }
+        return false;
     }
 }
