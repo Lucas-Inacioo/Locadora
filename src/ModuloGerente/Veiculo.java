@@ -130,7 +130,7 @@ public class Veiculo {
         }
     }
 
-    public static Boolean duplicatedVeiculo(String placa) {
+    public static Boolean isDuplicatedVeiculo(String placa) {
         String relativePath = "database/veiculos.tsv";
         File configFile = new File(relativePath);
         boolean duplicated = false;

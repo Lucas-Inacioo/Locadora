@@ -3,8 +3,13 @@ package ModuloFuncionario.gui;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
+
+import java.util.Optional;
+
 import ModuloFuncionario.Cliente;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 
 public class ClienteTab {
@@ -33,9 +38,11 @@ public class ClienteTab {
         customerGrid.add(nomeClienteField, 1, 1);
 
         Label dataNascimentoLabel = new Label("Data de Nascimento:");
+        Label dataNascimentoTip = new Label("dd/mm/aaaa");
         TextField dataNascimentoField = new TextField();
         customerGrid.add(dataNascimentoLabel, 0, 2);
         customerGrid.add(dataNascimentoField, 1, 2);
+        customerGrid.add(dataNascimentoTip, 2, 2);
 
         Label emailLabel = new Label("E-Mail:");
         TextField emailField = new TextField();
@@ -49,16 +56,129 @@ public class ClienteTab {
 
         Button submitButton = new Button("Registrar Cliente");
         submitButton.setOnAction(e -> {
-            Cliente cliente = new Cliente(
-                CPFField.getText(),
-                nomeClienteField.getText(),
-                dataNascimentoField.getText(),
-                emailField.getText(),
-                numeroCelularField.getText()
-            );
-            cliente.saveCliente();
+            Boolean CPFEmpty = false, nomeEmpty = false, dataNascEmpty = false, emailEmpty = false, celularEmpty = false;
+            String emptyFields = "Os seguintes campos precisam ser preenchidos: ";
+
+            if (CPFField.getText().trim().isEmpty()) {
+                CPFEmpty = true;
+                emptyFields += "| CPF |";
+            }
+            if (nomeClienteField.getText().trim().isEmpty()) {
+                nomeEmpty = true;
+                emptyFields += "| NOME |";
+            }
+            if (dataNascimentoField.getText().trim().isEmpty()) {
+                dataNascEmpty = true;
+                emptyFields += "| DATA DE NASCIMENTO |";
+            }   
+            if (emailField.getText().trim().isEmpty()) {
+                emailEmpty = true;
+                emptyFields += "| EMAIL |";
+            }
+            if (numeroCelularField.getText().trim().isEmpty()) {
+                celularEmpty = true;
+                emptyFields += "| TELEFONE |";
+            }
+
+            if (CPFEmpty || nomeEmpty || dataNascEmpty || emailEmpty || celularEmpty) {
+                Alert alert = new Alert(Alert.AlertType.WARNING); 
+                alert.setTitle("Campos Faltando");
+                alert.setHeaderText(null); 
+                alert.setContentText(emptyFields);
+
+                alert.showAndWait();
+                return;
+            }
+
+            String CPF = CPFField.getText().replaceAll(" ", "")
+                                           .replaceAll("\\.", "")
+                                           .replaceAll("-", "");
+            String nome = nomeClienteField.getText().replaceAll(" ", "");
+            String dataNasc = dataNascimentoField.getText().replaceAll(" ", "")
+                                                           .replaceAll("\\/", "");
+            String email = emailField.getText().replaceAll(" ", "");
+            String celular = numeroCelularField.getText().replaceAll(" ", "")
+                                                         .replaceAll("\\(", "")
+                                                         .replaceAll("\\)", "")
+                                                         .replaceAll("-", "");
+
+            if (Cliente.isDuplicatedCliente(CPF)) {
+                Alert alert = new Alert(Alert.AlertType.WARNING); 
+                alert.setTitle("CPF duplicado");
+                alert.setHeaderText("CPF duplicado"); 
+                alert.setContentText("Cliente de CPF " + CPF + " já cadastrado, favor verificar!");
+
+                alert.showAndWait();
+                return;
+            }
+
+            if (!Cliente.isValidCPF(CPF)) {
+                Alert alert = new Alert(Alert.AlertType.WARNING); 
+                alert.setTitle("CPF inválido");
+                alert.setHeaderText("CPF inválido"); 
+                alert.setContentText("O CPF inserido não é um CPF válido!");
+
+                alert.showAndWait();
+                return;
+            }
+
+            if (!Cliente.isValidDataNascimento(dataNasc)) {
+                Alert alert = new Alert(Alert.AlertType.WARNING); 
+                alert.setTitle("Data de nascimento inválida");
+                alert.setHeaderText("Data de nascimento inválida"); 
+                alert.setContentText("A data de nascimento inserida é inválida!");
+
+                alert.showAndWait();
+                return;
+            }
+
+            if (!Cliente.isValidEmail(email)) {
+                Alert alert = new Alert(Alert.AlertType.WARNING); 
+                alert.setTitle("Email inválido");
+                alert.setHeaderText("Email inválido"); 
+                alert.setContentText("O email inserido é inválido!");
+
+                alert.showAndWait();
+                return;
+            }
+
+            if (!celular.matches("^\\d{10}(\\d{1})?$")) {
+                Alert alert = new Alert(Alert.AlertType.WARNING); 
+                alert.setTitle("Celular inválido");
+                alert.setHeaderText("Celular inválido"); 
+                alert.setContentText("O celular inserido não é válido!");
+
+                alert.showAndWait();
+                return;
+            }
+
+            if (confirmation(CPF, nome, dataNasc, email, celular)) {
+                Cliente cliente = new Cliente(
+                    CPF.toUpperCase(),
+                    nome.toUpperCase(),
+                    dataNasc.toUpperCase(),
+                    email.toUpperCase(),
+                    celular.toUpperCase()
+                );
+                cliente.saveCliente();
+            }
         });
         customerGrid.add(submitButton, 1, 5);
     }
 
+    private static Boolean confirmation(String CPF, String nome, String dataNasc, String email, String celular) {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION); 
+        alert.setTitle("Adicionar cliente?");
+        alert.setHeaderText("Você está prestes a adicionar o seguinte cliente: "); 
+        alert.setContentText(
+                    "CPF: " + CPF + "\n" +
+                    "Nome: " + nome + "\n" +
+                    "Data de Nascimento: " + dataNasc + "\n" +
+                    "E-Mail: " + email + "\n" +
+                    "Celular: " + celular
+                    );
+
+        Optional<ButtonType> result = alert.showAndWait();
+        return result.isPresent() && result.get() == ButtonType.OK;
+    }
 }

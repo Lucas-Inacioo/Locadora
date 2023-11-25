@@ -157,7 +157,7 @@ public class ConfiguracoesTab {
                 alert.showAndWait();
             }
         });
-        operationalGrid.add(submitButton, 1, 7);
+        operationalGrid.add(submitButton, 5, 7);
 
         Map<String, List<String>> allConfigValues = Configuracoes.readAllConfigurations();
 

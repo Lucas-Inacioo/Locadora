@@ -149,7 +149,7 @@ public class VeiculoTab {
             String ano = anoFabricacaoField.getText().replaceAll(" ", "");
             String grupo = nomeGrupoField.getValue().replaceAll(" ", "");
 
-            if (Veiculo.duplicatedVeiculo(placa)) {
+            if (Veiculo.isDuplicatedVeiculo(placa)) {
                 Alert alert = new Alert(Alert.AlertType.WARNING); 
                 alert.setTitle("Veículo duplicado");
                 alert.setHeaderText(null); 
@@ -366,7 +366,7 @@ public class VeiculoTab {
             }
             else {
                 String placa = placaField.getText();
-                if (!Veiculo.duplicatedVeiculo(placa)) {
+                if (!Veiculo.isDuplicatedVeiculo(placa)) {
                     Alert alert = new Alert(Alert.AlertType.WARNING); 
                     alert.setTitle("Veículo não encontrado");
                     alert.setHeaderText("Veículo não encontrado"); 
