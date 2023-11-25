@@ -7,9 +7,12 @@ import javafx.scene.layout.GridPane;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import ModuloGerente.Configuracoes;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 
 public class ConfiguracoesTab {
@@ -147,8 +150,12 @@ public class ConfiguracoesTab {
             );
         
             List<List<String>> allConfigurations = Arrays.asList(basicoValues, padraoValues, premiumValues);
-        
-            Configuracoes.saveMultiConfiguracoes(allConfigurations);
+            
+            if (confirmation()) {
+                Configuracoes.saveMultiConfiguracoes(allConfigurations);
+                Alert alert = new Alert(Alert.AlertType.INFORMATION, "Configurações alteradas com sucesso!");
+                alert.showAndWait();
+            }
         });
         operationalGrid.add(submitButton, 1, 7);
 
@@ -159,4 +166,13 @@ public class ConfiguracoesTab {
         Configuracoes.setConfigValues(allConfigValues.get("PREMIUM"), valorDiariaFieldPremium, valorTanqueFieldPremium, valorLimpezaExtFieldPremium, valorLimpezaintFieldPremium, diariaSeguroFieldPremium);
     }
 
+    private static Boolean confirmation() {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION); 
+        alert.setTitle("Alterar configurações");
+        alert.setHeaderText("Alterar configurações"); 
+        alert.setContentText("Tem certeza que deseja alterar as configurações");
+
+        Optional<ButtonType> result = alert.showAndWait();
+        return result.isPresent() && result.get() == ButtonType.OK;
+    }
 }
