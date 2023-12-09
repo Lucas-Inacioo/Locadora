@@ -16,6 +16,7 @@ import javafx.stage.Stage;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -31,6 +32,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.ChoiceDialog;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
@@ -47,7 +49,8 @@ public class ReservaTab {
         Button btnDelReservation = new Button("Excluir Reserva");
         Button btnDelNoShow = new Button("Excluir No Shows");
         Button btnConfirmReservation = new Button("Confirmar Reserva");
-        menuButtons.getChildren().addAll(btnNewReservation, btnDelReservation, btnDelNoShow, btnConfirmReservation);
+        Button btnConcludeReservation = new Button("Concluir Reserva");
+        menuButtons.getChildren().addAll(btnNewReservation, btnDelReservation, btnDelNoShow, btnConfirmReservation, btnConcludeReservation);
 
         StackPane formsContainer = new StackPane();
 
@@ -63,7 +66,11 @@ public class ReservaTab {
         GridPane confirmReservation = new GridPane();
         tabConfirmReservation(confirmReservation, primaryStage);
 
-        formsContainer.getChildren().addAll(registerNewReservationForm, deleteReservationForm, deleteNoShowForm, confirmReservation);
+        
+        GridPane concludeReservation = new GridPane();
+        tabConcludeReservation(concludeReservation, primaryStage);
+
+        formsContainer.getChildren().addAll(registerNewReservationForm, deleteReservationForm, deleteNoShowForm, confirmReservation, concludeReservation);
 
         btnNewReservation.setOnAction(e -> {
             registerNewReservationForm.setVisible(true);
@@ -77,6 +84,9 @@ public class ReservaTab {
 
             confirmReservation.setVisible(false);
             confirmReservation.setManaged(false);
+  
+            concludeReservation.setVisible(false);
+            concludeReservation.setManaged(false);
         });
         
         btnDelReservation.setOnAction(e -> {
@@ -91,6 +101,9 @@ public class ReservaTab {
             
             confirmReservation.setVisible(false);
             confirmReservation.setManaged(false);
+
+            concludeReservation.setVisible(false);
+            concludeReservation.setManaged(false);
         });
 
         btnDelNoShow.setOnAction(e -> {
@@ -106,6 +119,9 @@ public class ReservaTab {
 
             confirmReservation.setVisible(false);
             confirmReservation.setManaged(false);
+            
+            concludeReservation.setVisible(false);
+            concludeReservation.setManaged(false);
         });
 
         btnConfirmReservation.setOnAction(e -> {
@@ -120,6 +136,26 @@ public class ReservaTab {
             
             deleteReservationForm.setVisible(false);
             deleteReservationForm.setManaged(false);
+            
+            concludeReservation.setVisible(false);
+            concludeReservation.setManaged(false);
+        });
+
+        btnConcludeReservation.setOnAction(e -> {
+            concludeReservation.setVisible(true);
+            concludeReservation.setManaged(true);
+
+            deleteNoShowForm.setVisible(false);
+            deleteNoShowForm.setManaged(false);
+        
+            registerNewReservationForm.setVisible(false);
+            registerNewReservationForm.setManaged(false);
+            
+            deleteReservationForm.setVisible(false);
+            deleteReservationForm.setManaged(false);
+            
+            confirmReservation.setVisible(false);
+            confirmReservation.setManaged(false);
         });
         
         BorderPane borderPane = new BorderPane();
@@ -131,6 +167,8 @@ public class ReservaTab {
         deleteNoShowForm.setManaged(false);
         confirmReservation.setVisible(false);
         confirmReservation.setManaged(false);
+        concludeReservation.setVisible(false);
+        concludeReservation.setManaged(false);
         
         reservationTab.setContent(borderPane);
 
@@ -290,6 +328,8 @@ public class ReservaTab {
                     Alert alert = new Alert(Alert.AlertType.INFORMATION, "Reserva feita para o CPF: " + CPF + 
                                                                         "\nValor da locação: " + valorlocacao +
                                                                         "\nID da locação: " + idLocacao);
+                    alert.setTitle("Reserva Confirmada");
+                    alert.setHeaderText("Reserva confirmada com sucesso!"); 
                     alert.showAndWait();
                     removeNode(reservationGrid);
                     }
@@ -564,6 +604,90 @@ public class ReservaTab {
             }
         });
         reservationGrid.add(submitButton, 2, 1);
+    }
+
+    private static void tabConcludeReservation(GridPane reservationGrid, Stage primaryStage) {
+        reservationGrid.setVgap(10);
+        reservationGrid.setHgap(10);
+    
+        Label placalabel = new Label("Placa:");
+        TextField placaTextField = new TextField();
+        reservationGrid.add(placalabel, 0, 0);
+        reservationGrid.add(placaTextField, 0, 1);
+    
+        Button submitButton = new Button("Buscar Reservas");
+        submitButton.setOnAction(e -> {
+            if (!placaTextField.getText().trim().isEmpty()) {
+                String placa = placaTextField.getText().trim();
+
+                if(!Veiculo.isDuplicatedVeiculo(placa)) {
+                    Alert alert = new Alert(Alert.AlertType.ERROR, "Veículo não encontrado");
+                    alert.showAndWait();
+                    return;
+                }
+                Reserva reserva = Reserva.getReservaByPlaca(placa);
+                ArrayList<Boolean> details = Reserva.getDetailsByReserva(reserva);
+
+                boolean limpezaInt = details.get(1);
+                boolean limpezaExt = details.get(2);
+
+                if (!limpezaInt) {
+                    limpezaInt = askYesNoQuestion("Limpeza Interna", "A limpeza interna é necessária?");
+                }
+                else limpezaInt = false;
+
+                if (!limpezaExt) {
+                    limpezaExt = askYesNoQuestion("Limpeza Externa", "A limpeza externa é necessária?");
+                }
+                else limpezaExt = false;
+
+                String gasLevel = askForGasLevel();
+                
+                String grupo = Veiculo.getVeiculoByPlaca(placa).getNomeGrupo();
+
+                float valorLocacao = Reserva.calculateLocacaoPrice(grupo, limpezaInt, limpezaExt, gasLevel);
+
+                
+                if(valorLocacao > 0) {
+                    Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                    alert.setTitle("Valor extra a ser cobrado: ");
+                    alert.setContentText("Valor: " + valorLocacao);
+                    alert.showAndWait();
+
+                    if(confirmation(reserva, Reason.CONCLUIDA)) {
+                        Reserva.updateReserva(reserva.getIdentificador().toString(), "CONCLUIDA");
+                        Alert alertConclude = new Alert(Alert.AlertType.INFORMATION, "Reserva concluída");
+                        alertConclude.showAndWait();
+                        removeNode(reservationGrid);
+                    }
+                }
+            }
+        });
+        reservationGrid.add(submitButton, 2, 1);
+    }
+
+    private static boolean askYesNoQuestion(String title, String content) {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle(title);
+        alert.setContentText(content);
+        Optional<ButtonType> result = alert.showAndWait();
+        return result.isPresent() && result.get() == ButtonType.OK;
+    }
+
+    private static String askForGasLevel() {
+        List<String> choices = new ArrayList<>();
+    
+        choices.add("0.0");
+        choices.add("0.25");
+        choices.add("0.5");
+        choices.add("0.75");
+        choices.add("1.0");
+
+        ChoiceDialog<String> dialog = new ChoiceDialog<>("1.0", choices);
+        dialog.setTitle("Nível de Combustível");
+        dialog.setContentText("Escolha o nível de combustível:");
+        Optional<String> result = dialog.showAndWait();
+        return result.orElse("1.0");
     }
 
     private static Boolean confirmation(Reserva reserva, Reason reason) {

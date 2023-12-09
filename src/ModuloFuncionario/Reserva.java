@@ -262,6 +262,46 @@ public class Reserva {
         return 0;
     }
 
+    public static float calculateLocacaoPrice(String selectedGrupo, Boolean contractedLimpezaInt, Boolean contractedLimpezaExt, String gasLevel) {
+        Path pathConfiguracoes = Paths.get("database", "configuracoes.tsv");
+
+        try (BufferedReader br = Files.newBufferedReader(pathConfiguracoes)) {
+            String line;
+            float limpezaExt = 0;
+            float limpezaint = 0;
+            float gas = 0;
+
+            while ((line = br.readLine()) != null) {
+                String[] parts = line.split("\t");
+                String grupo = parts[0].trim();
+                if (grupo.equals(selectedGrupo)) {
+                    gas = Float.parseFloat(parts[2].trim());
+                    limpezaExt = Float.parseFloat(parts[3].trim());
+                    limpezaint = Float.parseFloat(parts[4].trim());
+                    break;
+                }
+            }
+
+            float total = 0;
+            if (contractedLimpezaInt) {
+                total += limpezaint;
+            }
+            if (contractedLimpezaExt) {
+                total += limpezaExt;
+            }
+            
+            total += gas * (1 - Float.parseFloat(gasLevel));
+
+            return total;
+
+        } catch (IOException e) {
+            System.out.println("Failed to read file: " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        return 0;
+    }
+
     public static ObservableList<Reserva> getReservationsByCPF(String CPF) {
         ObservableList<Reserva> reservationList = FXCollections.observableArrayList();
 
@@ -302,6 +342,51 @@ public class Reserva {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public static Reserva getReservaByPlaca(String desiredPlaca) {
+        Path pathReservas = Paths.get("database", "reservas.tsv");
+
+        try (BufferedReader br = Files.newBufferedReader(pathReservas)) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] parts = line.split("\t");
+                String placa = parts[2].trim();
+                if (placa.equals(desiredPlaca)) {
+                    return new Reserva(Long.parseLong(parts[0].trim()), parts[1].trim(), parts[2].trim(), parts[3].trim(), parts[4].trim(), Float.parseFloat(parts[5].trim()), parts[6].trim(), false, false, false);
+                }
+            }
+        } catch (IOException e) {
+            System.out.println("Failed to read file: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static ArrayList<Boolean> getDetailsByReserva(Reserva reserva) {
+        String relativePath = "database/reservasDetalhes.tsv";
+        File configFile = new File(relativePath);
+
+        ArrayList<Boolean> details = new ArrayList<>();
+
+        if (configFile.exists()) {
+            try (BufferedReader reader = new BufferedReader(new FileReader(configFile))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    if (line.startsWith(reserva.getIdentificador() + "\t")) {
+                        String[] data = line.split("\t");
+                        details.add(Boolean.parseBoolean(data[1].trim()));
+                        details.add(Boolean.parseBoolean(data[2].trim()));
+                        details.add(Boolean.parseBoolean(data[3].trim()));
+                        break;
+                    }
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return details;
     }
 
     public static Boolean isDuplicatedReserva(String identificador) {
