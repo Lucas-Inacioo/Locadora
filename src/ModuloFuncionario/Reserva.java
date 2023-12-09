@@ -2,6 +2,8 @@ package ModuloFuncionario;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -9,7 +11,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 
 import ModuloGerente.Veiculo;
 import javafx.collections.FXCollections;
@@ -256,5 +260,105 @@ public class Reserva {
         }
 
         return 0;
+    }
+
+    public static ObservableList<Reserva> getReservationsByCPF(String CPF) {
+        ObservableList<Reserva> reservationList = FXCollections.observableArrayList();
+
+        Path pathReservas = Paths.get("database", "reservas.tsv");
+
+        try (BufferedReader br = Files.newBufferedReader(pathReservas)) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] parts = line.split("\t");
+                String cpf = parts[1].trim();
+                if (cpf.equals(CPF)) {
+                    Reserva reserva = new Reserva(Long.parseLong(parts[0].trim()), parts[1].trim(), parts[2].trim(), parts[3].trim(), parts[4].trim(), Float.parseFloat(parts[5].trim()), parts[6].trim(), false, false, false);
+                    reservationList.add(reserva);
+                }
+            }
+        } catch (IOException e) {
+            System.out.println("Failed to read file: " + e.getMessage());
+            e.printStackTrace();
+        }
+        
+        return reservationList;
+    }
+
+    public static Reserva getReservaByID(String identificador) {
+        Path pathReservas = Paths.get("database", "reservas.tsv");
+
+        try (BufferedReader br = Files.newBufferedReader(pathReservas)) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] parts = line.split("\t");
+                String id = parts[0].trim();
+                if (id.equals(identificador)) {
+                    return new Reserva(Long.parseLong(parts[0].trim()), parts[1].trim(), parts[2].trim(), parts[3].trim(), parts[4].trim(), Float.parseFloat(parts[5].trim()), parts[6].trim(), false, false, false);
+                }
+            }
+        } catch (IOException e) {
+            System.out.println("Failed to read file: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static Boolean isDuplicatedReserva(String identificador) {
+        String relativePath = "database/reservas.tsv";
+        File configFile = new File(relativePath);
+        boolean duplicated = false;
+
+        if (configFile.exists()) {
+            try (BufferedReader reader = new BufferedReader(new FileReader(configFile))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    if (line.startsWith(identificador + "\t")) {
+                        duplicated = true;
+                        break;
+                    }
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        if (duplicated) {
+            return true;
+        }
+        return false;
+    }
+
+    public static void deleteReserva(String identificador) {
+        deleteFromFile("database/reservas.tsv", identificador);
+        deleteFromFile("database/reservasDetalhes.tsv", identificador);
+    }
+
+    private static void deleteFromFile(String filePath, String identificador) {
+        File configFile = new File(filePath);
+        if (!configFile.exists()) {
+            return; // If file does not exist, return immediately
+        }
+
+        List<String> linesToKeep = new ArrayList<>();
+        try (BufferedReader reader = new BufferedReader(new FileReader(configFile))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                if (!line.startsWith(identificador + "\t")) {
+                    linesToKeep.add(line);
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(configFile, false))) {
+            for (String line : linesToKeep) {
+                writer.write(line);
+                writer.newLine();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

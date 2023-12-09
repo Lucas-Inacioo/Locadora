@@ -3,9 +3,13 @@ package ModuloFuncionario.gui;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
@@ -17,6 +21,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 
+import ModuloFuncionario.Cliente;
 import ModuloFuncionario.Reserva;
 import ModuloGerente.Veiculo;
 import javafx.collections.ObservableList;
@@ -36,9 +41,45 @@ public class ReservaTab {
 
     public static Tab createVeiculosDisponiveisTab(Stage primaryStage) {
         Tab reservationTab = new Tab("Reservas");
-        GridPane reservationGrid = new GridPane();
-        tabVeiculosDisponiveis(reservationGrid, primaryStage);
-        reservationTab.setContent(reservationGrid);
+
+        HBox menuButtons = new HBox();
+        Button btnNewReservation = new Button("Nova Reserva");
+        Button btnDelReservation = new Button("Excluir Reserva");
+        menuButtons.getChildren().addAll(btnNewReservation, btnDelReservation);
+
+        StackPane formsContainer = new StackPane();
+
+        GridPane registerNewReservationForm = new GridPane();
+        tabVeiculosDisponiveis(registerNewReservationForm, primaryStage);
+
+        GridPane deleteReservationForm = new GridPane();
+        deleteReservationForm(deleteReservationForm, primaryStage);
+
+        formsContainer.getChildren().addAll(registerNewReservationForm, deleteReservationForm);
+
+        btnNewReservation.setOnAction(e -> {
+            registerNewReservationForm.setVisible(true);
+            registerNewReservationForm.setManaged(true);
+        
+            deleteReservationForm.setVisible(false);
+            deleteReservationForm.setManaged(false);
+        });
+        
+        btnDelReservation.setOnAction(e -> {
+            deleteReservationForm.setVisible(true);
+            deleteReservationForm.setManaged(true);
+        
+            registerNewReservationForm.setVisible(false);
+            registerNewReservationForm.setManaged(false);
+        });
+        
+        BorderPane borderPane = new BorderPane();
+        borderPane.setTop(menuButtons);
+        borderPane.setCenter(formsContainer);
+        deleteReservationForm.setVisible(false);
+        deleteReservationForm.setManaged(false);
+        
+        reservationTab.setContent(borderPane);
 
         return reservationTab;
     }
@@ -69,17 +110,7 @@ public class ReservaTab {
     }
 
     private static void displayGrupos(GridPane reservationGrid, Stage primaryStage, String dataRetirada, String dataDevolucao) {
-        Node toRemove = null;
-        for (Node node : reservationGrid.getChildren()) {
-            if (GridPane.getRowIndex(node) != null && GridPane.getRowIndex(node) == 2 && 
-                GridPane.getColumnIndex(node) != null && GridPane.getColumnIndex(node) == 0) {
-                toRemove = node;
-                break;
-            }
-        }
-        if (toRemove != null) {
-            reservationGrid.getChildren().remove(toRemove);
-        }
+        removeNode(reservationGrid);
         
         ObservableList<String> grupoList = Reserva.generateGrupoList(dataRetirada, dataDevolucao);
         ListView<String> listView = new ListView<>(grupoList);
@@ -93,17 +124,7 @@ public class ReservaTab {
     }
 
     private static void displaygenerateVeiculos(GridPane reservationGrid, Stage primaryStage, String selectedGrupo, String dataRetirada, String dataDevolucao) {
-        Node toRemove = null;
-        for (Node node : reservationGrid.getChildren()) {
-            if (GridPane.getRowIndex(node) != null && GridPane.getRowIndex(node) == 2 && 
-                GridPane.getColumnIndex(node) != null && GridPane.getColumnIndex(node) == 0) {
-                toRemove = node;
-                break;
-            }
-        }
-        if (toRemove != null) {
-            reservationGrid.getChildren().remove(toRemove);
-        }
+        removeNode(reservationGrid);
         
         ObservableList<Veiculo> veiculosList = Reserva.generateVeiculosList(selectedGrupo);
         TableView<Veiculo> tableView = new TableView<>(veiculosList);
@@ -166,15 +187,29 @@ public class ReservaTab {
                     return;
                 }
 
-                List<Boolean> desiredServices = displayServices();
-                
-                if (desiredServices == null) {
+                if (!Cliente.isDuplicatedCliente(CPF)) {
+                    Alert alert = new Alert(Alert.AlertType.ERROR, "Cliente não cadastrado");
+                    alert.showAndWait();
                     return;
                 }
-                
-                Boolean seguro = desiredServices.get(0);
-                Boolean limpezaInt = desiredServices.get(1);
-                Boolean limpezaExt = desiredServices.get(2);
+
+                Boolean seguro, limpezaInt, limpezaExt;
+                do {
+                    List<Boolean> desiredServices = displayServices();
+
+                    if (desiredServices == null) {
+                        return;
+                    }
+
+                    seguro = desiredServices.get(0);
+                    limpezaInt = desiredServices.get(1);
+                    limpezaExt = desiredServices.get(2);
+
+                    if (Cliente.isUnderAge(CPF) && seguro == false) {
+                        Alert alert = new Alert(Alert.AlertType.ERROR, "Cliente entre 18 e 21 anos, seguro deve ser obrigatório");
+                        alert.showAndWait();
+                    }
+                } while (Cliente.isUnderAge(CPF) && seguro == false);
 
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
                 LocalDate startDate = LocalDate.parse(dataRetirada, formatter);
@@ -183,24 +218,29 @@ public class ReservaTab {
 
                 float valorlocacao = Reserva.calculateLocacaoPrice(selectedGrupo, seguro, limpezaInt, limpezaExt, daysBetween);
 
-                Reserva reserva = new Reserva(
-                    idLocacao,
-                    CPF,
-                    placa,
-                    dataRetirada,
-                    dataDevolucao,
-                    valorlocacao,
-                    "ATIVA",
-                    seguro,
-                    limpezaInt,
-                    limpezaExt
-                );
-                reserva.saveReserva();
+                if (confirmation(idLocacao, CPF, placa, dataRetirada, dataDevolucao, valorlocacao, seguro, limpezaInt, limpezaExt, reservationGrid)) {
+                    Reserva reserva = new Reserva(
+                        idLocacao,
+                        CPF,
+                        placa,
+                        dataRetirada,
+                        dataDevolucao,
+                        valorlocacao,
+                        "ATIVA",
+                        seguro,
+                        limpezaInt,
+                        limpezaExt
+                    );
+                    reserva.saveReserva();
 
-                Alert alert = new Alert(Alert.AlertType.INFORMATION, "Reserva feita para o CPF: " + CPF);
-                alert.showAndWait();
-            }
-        });
+                    Alert alert = new Alert(Alert.AlertType.INFORMATION, "Reserva feita para o CPF: " + CPF + 
+                                                                        "\nValor da locação: " + valorlocacao +
+                                                                        "\nID da locação: " + idLocacao);
+                    alert.showAndWait();
+                    removeNode(reservationGrid);
+                    }
+                }
+            });
 
         reservationGrid.add(tableView, 0, 2, 7, 10);
     }
@@ -231,4 +271,167 @@ public class ReservaTab {
 
         return result.orElse(null);
     }
+
+    private static void removeNode(GridPane veiculoGrid) {
+        Node toRemove = null;
+        for (Node node : veiculoGrid.getChildren()) {
+            if (GridPane.getRowIndex(node) != null && GridPane.getRowIndex(node) == 2 && 
+                GridPane.getColumnIndex(node) != null && GridPane.getColumnIndex(node) == 0) {
+                toRemove = node;
+                break;
+            }
+        }
+        if (toRemove != null) {
+            veiculoGrid.getChildren().remove(toRemove);
+        }
+    }
+
+    private static Boolean confirmation(long idLocacao, String CPF, String placa, String dataRetirada, String dataDevolucao, float valorlocacao, Boolean seguro, Boolean limpezaInt, Boolean limpezaExt, GridPane reservationGrid) {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION); 
+        alert.setTitle("Criar reserva?");
+        alert.setHeaderText("Você está prestes a criar a seguinte reserva: "); 
+        alert.setContentText(
+                    "idLocacao: " + idLocacao + "\n" +
+                    "CPF cliente: " + CPF + "\n" +
+                    "Placa do veículo: " + placa + "\n" +
+                    "Data de retirada: " + dataRetirada + "\n" +
+                    "Data de devolução: " + dataDevolucao + "\n" +
+                    "Valor da locação: " + valorlocacao + "\n" +
+                    "Seguro: " + seguro + "\n" +
+                    "Limpeza interna: " + limpezaInt + "\n" +
+                    "Limpeza externa: " + limpezaExt + "\n"
+                    );
+
+        Optional<ButtonType> result = alert.showAndWait();
+        return result.isPresent() && result.get() == ButtonType.OK;
+    }
+
+    private static void deleteReservationForm(GridPane reservationGrid, Stage primaryStage) {
+        reservationGrid.setVgap(10);
+        reservationGrid.setHgap(10);
+    
+        Label cpfLabel = new Label("CPF:");
+        TextField cpfTextField = new TextField();
+        reservationGrid.add(cpfLabel, 0, 0);
+        reservationGrid.add(cpfTextField, 0, 1);
+    
+        Label idLocacaoLabel = new Label("ID Locação:");
+        TextField idLocacaoTextField = new TextField();
+        reservationGrid.add(idLocacaoLabel, 1, 0);
+        reservationGrid.add(idLocacaoTextField, 1, 1);
+    
+        cpfTextField.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue.trim().isEmpty()) {
+                idLocacaoTextField.setDisable(true);
+            } else {
+                idLocacaoTextField.setDisable(false);
+            }
+        });
+    
+        idLocacaoTextField.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue.trim().isEmpty()) {
+                cpfTextField.setDisable(true);
+            } else {
+                cpfTextField.setDisable(false);
+            }
+        });
+    
+        Button submitButton = new Button("Buscar Reservas");
+        submitButton.setOnAction(e -> {
+            if (!cpfTextField.getText().trim().isEmpty()) {
+                ObservableList<Reserva> reservations = Reserva.getReservationsByCPF(cpfTextField.getText().trim());
+                displayReservations(reservationGrid, reservations);
+            }
+            else if (!idLocacaoTextField.getText().trim().isEmpty()) {
+                if (!Reserva.isDuplicatedReserva(idLocacaoTextField.getText())) {
+                    Alert alert = new Alert(Alert.AlertType.ERROR, "Reserva não encontrada");
+                    alert.showAndWait();
+                    return;
+                }
+                if (confirmation(Reserva.getReservaByID(idLocacaoTextField.getText()), reservationGrid)) {
+                    Reserva.deleteReserva(idLocacaoTextField.getText());
+                    Alert alert = new Alert(Alert.AlertType.INFORMATION, "Reserva excluída");
+                    alert.showAndWait();
+                    removeNode(reservationGrid);
+                }
+            }
+        });
+        reservationGrid.add(submitButton, 2, 1);
+    }
+    
+    private static void displayReservations(GridPane reservationGrid, ObservableList<Reserva> reservations) {
+        removeNode(reservationGrid);
+        
+        TableView<Reserva> tableView = new TableView<>(reservations);
+    
+        TableColumn<Reserva, String> idLocacaoColumn = new TableColumn<>("ID Locação");
+        idLocacaoColumn.setCellValueFactory(new PropertyValueFactory<>("identificador"));
+    
+        TableColumn<Reserva, String> CPFColumn = new TableColumn<>("CPF");
+        CPFColumn.setCellValueFactory(new PropertyValueFactory<>("CPFCliente"));
+    
+        TableColumn<Reserva, String> placaColumn = new TableColumn<>("Placa");
+        placaColumn.setCellValueFactory(new PropertyValueFactory<>("Placa"));
+    
+        TableColumn<Reserva, String> dataRetiradaColumn = new TableColumn<>("Data de Retirada");
+        dataRetiradaColumn.setCellValueFactory(new PropertyValueFactory<>("dataRetirada"));
+    
+        TableColumn<Reserva, String> dataDevolucaoColumn = new TableColumn<>("Data de Devolução");
+        dataDevolucaoColumn.setCellValueFactory(new PropertyValueFactory<>("dataDevolucao"));
+    
+        TableColumn<Reserva, String> valorLocacaoColumn = new TableColumn<>("Valor da Locação");
+        valorLocacaoColumn.setCellValueFactory(new PropertyValueFactory<>("valorLocacao"));
+    
+        TableColumn<Reserva, String> statusColumn = new TableColumn<>("Status");
+        statusColumn.setCellValueFactory(new PropertyValueFactory<>("status"));
+    
+        tableView.getColumns().add(idLocacaoColumn);
+        tableView.getColumns().add(CPFColumn);
+        tableView.getColumns().add(placaColumn);
+        tableView.getColumns().add(dataRetiradaColumn);
+        tableView.getColumns().add(dataDevolucaoColumn);
+        tableView.getColumns().add(valorLocacaoColumn);
+        tableView.getColumns().add(statusColumn);
+        
+        statusColumn.prefWidthProperty().bind(tableView.widthProperty().subtract(
+            idLocacaoColumn.widthProperty()
+            .add(CPFColumn.widthProperty())
+            .add(placaColumn.widthProperty())
+            .add(dataRetiradaColumn.widthProperty())
+            .add(dataDevolucaoColumn.widthProperty())
+            .add(valorLocacaoColumn.widthProperty())
+        ));
+
+        tableView.setOnMouseClicked(event -> {
+            if (event.getClickCount() == 2 && !tableView.getSelectionModel().isEmpty()) {
+                Reserva selectedReservation = tableView.getSelectionModel().getSelectedItem();
+                
+                if (confirmation(selectedReservation, reservationGrid)) {
+                    Reserva.deleteReserva(selectedReservation.getIdentificador().toString());
+                    Alert alert = new Alert(Alert.AlertType.INFORMATION, "Reserva excluída");
+                    alert.showAndWait();
+                    removeNode(reservationGrid);
+                }
+            }
+        });
+        reservationGrid.add(tableView, 0, 2, 7, 10);
+    }
+
+    private static Boolean confirmation(Reserva selectedReservation, GridPane reservationGrid) {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION); 
+        alert.setTitle("Deletar reserva?");
+        alert.setHeaderText("Você está prestes a Deletar a seguinte reserva: "); 
+        alert.setContentText(
+                    "idLocacao: " + selectedReservation.getIdentificador() + "\n" +
+                    "CPF cliente: " + selectedReservation.getCPFCliente() + "\n" +
+                    "Placa do veículo: " + selectedReservation.getPlaca() + "\n" +
+                    "Data de retirada: " + selectedReservation.getDataRetirada() + "\n" +
+                    "Data de devolução: " + selectedReservation.getDataDevolucao() + "\n" +
+                    "Valor da locação: " + selectedReservation.getValorLocacao() + "\n"
+                    );
+
+        Optional<ButtonType> result = alert.showAndWait();
+        return result.isPresent() && result.get() == ButtonType.OK;
+    }
+
 }

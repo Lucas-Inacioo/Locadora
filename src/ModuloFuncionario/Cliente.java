@@ -171,4 +171,41 @@ public class Cliente {
 
         return true;
     }
+
+    public static boolean isUnderAge(String CPF) {
+        String relativePath = "database/clientes.tsv";
+        File configFile = new File(relativePath);
+        boolean underAge = false;
+
+        if (configFile.exists()) {
+            try (BufferedReader reader = new BufferedReader(new FileReader(configFile))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    if (line.startsWith(CPF + "\t")) {
+                        String[] parts = line.split("\t");
+                        String dataNasc = parts[2].trim();
+
+                        if (!isValidDataNascimento(dataNasc)) {
+                            return false;
+                        }
+
+                        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMyyyy");
+                        LocalDate date = LocalDate.parse(dataNasc, formatter);
+
+                        if (Period.between(date, LocalDate.now()).getYears() > 17 && Period.between(date, LocalDate.now()).getYears() < 21) {
+                            underAge = true;
+                        }
+                        break;
+                    }
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        if (underAge) {
+            return true;
+        }
+        return false;
+    }
 }
