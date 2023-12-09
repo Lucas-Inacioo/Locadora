@@ -3,6 +3,8 @@ package gui;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.stage.Stage;
 
@@ -67,7 +69,12 @@ public class Credentials {
                 Gerente.loadManagerScreen(primaryStage);
             }
         } else {
-            System.out.println("Invalid credentials for user: " + username); // TODO trocar println por warning na GUI
+            Alert alert = new Alert(AlertType.WARNING);
+            alert.setTitle("Invalid Credentials");
+            alert.setHeaderText(null);
+            alert.setContentText("Invalid credentials for user: " + username);
+
+            alert.showAndWait();
         }
     }
 
