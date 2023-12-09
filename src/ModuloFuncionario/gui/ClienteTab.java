@@ -15,8 +15,15 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 
+/**
+ * Classe que define a aba de clientes no sistema.
+ */
 public class ClienteTab {
     
+    /**
+     * Cria e retorna uma aba para gerenciamento de clientes.
+     * @return Uma aba de interface gráfica para gerenciamento de clientes.
+     */
     public static Tab createClientesTab() {
         Tab customerTab = new Tab("Clientes");
         GridPane customerGrid = new GridPane();
@@ -26,10 +33,16 @@ public class ClienteTab {
         return customerTab;
     }
 
+    /**
+     * Configura o layout e funcionalidades da aba de clientes.
+     * @param customerGrid O GridPane que será utilizado para estruturar os elementos da aba.
+     */
     private static void tabClientes(GridPane customerGrid) {
+        // Configuração do espaçamento entre elementos do GridPane
         customerGrid.setVgap(10);
         customerGrid.setHgap(10);
 
+        // Adiciona campos de texto e seus rótulos ao GridPane
         Label CPFLabel = new Label("CPF:");
         TextField CPFField = new TextField();
         customerGrid.add(CPFLabel, 0, 0);
@@ -57,11 +70,14 @@ public class ClienteTab {
         customerGrid.add(numeroCelularLabel, 0, 4);
         customerGrid.add(numeroCelularField, 1, 4);
 
+        // Criação e configuração do botão de registro
         Button submitButton = new Button("Registrar Cliente");
         submitButton.setOnAction(e -> {
+            // Verificação de campos vazios
             Boolean CPFEmpty = false, nomeEmpty = false, dataNascEmpty = false, emailEmpty = false, celularEmpty = false;
             String emptyFields = "Os seguintes campos precisam ser preenchidos: ";
 
+            // Lógica para verificação e adição de mensagens de alerta
             if (CPFField.getText().trim().isEmpty()) {
                 CPFEmpty = true;
                 emptyFields += "| CPF |";
@@ -93,10 +109,13 @@ public class ClienteTab {
                 return;
             }
 
+            // Verificação de campos inválidos
             String CPF = CPFField.getText().replaceAll(" ", "")
                                            .replaceAll("\\.", "")
                                            .replaceAll("-", "");
             String nome = nomeClienteField.getText().replaceAll(" ", "");
+
+            // Transforma a data de nascimento para o formato correto
             String dataNasc = dataNascimentoField.getText().trim();
             try {
                 DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
@@ -167,6 +186,7 @@ public class ClienteTab {
                 return;
             }
 
+            // Confirmação de registro do cliente
             if (confirmation(CPF, nome, dataNasc, email, celular)) {
                 Cliente cliente = new Cliente(
                     CPF.toUpperCase(),
@@ -181,6 +201,15 @@ public class ClienteTab {
         customerGrid.add(submitButton, 1, 5);
     }
 
+    /**
+     * Exibe uma caixa de diálogo para confirmação de dados do cliente.
+     * @param CPF CPF do cliente.
+     * @param nome Nome do cliente.
+     * @param dataNasc Data de nascimento do cliente.
+     * @param email Email do cliente.
+     * @param celular Celular do cliente.
+     * @return Retorna verdadeiro se o usuário confirmar, caso contrário, falso.
+     */
     private static Boolean confirmation(String CPF, String nome, String dataNasc, String email, String celular) {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION); 
         alert.setTitle("Adicionar cliente?");

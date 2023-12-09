@@ -10,6 +10,10 @@ import java.io.IOException;
 import javafx.collections.ObservableList;
 import javafx.collections.FXCollections;
 
+/**
+ * Classe que representa um veículo no sistema de gerenciamento de veículos.
+ * Possui atributos como placa, marca, modelo, cor, ano de fabricação, grupo e status.
+ */
 public class Veiculo {
     private String placa;
     private String marca;
@@ -19,6 +23,7 @@ public class Veiculo {
     private String nomeGrupo;
     private String status;
 
+    // Construtor da classe Veiculo
     public Veiculo(String placa, String marca, String modelo, String cor, String anoFabricação, String nomeGrupo, String status) {
         this.placa = placa;        
         this.marca = marca;
@@ -87,6 +92,9 @@ public class Veiculo {
         this.status = status;
     }
 
+    /**
+     * Salva os dados do veículo no arquivo de persistência.
+     */
     public void saveVeiculo() {
         String data =   placa + "\t" + marca + "\t" + modelo + "\t" + cor + "\t" + anoFabricação + 
                         "\t" + nomeGrupo + "\t" + status + "\n";
@@ -100,6 +108,11 @@ public class Veiculo {
         }
     }
 
+    /**
+     * Exclui um veículo do arquivo de persistência, atualizando seu status para indisponível.
+     * @param placa A placa do veículo a ser excluído.
+     * @param reason O motivo pelo qual o veículo está sendo excluído.
+     */
     public static void deleteVeiculo(String placa, String reason) {
         File inputFile = new File("database/veiculos.tsv");
         File tempFile = new File("database/veiculos_temp.tsv");
@@ -130,6 +143,11 @@ public class Veiculo {
         }
     }
 
+    /**
+     * Verifica se um veículo com a placa especificada já existe no arquivo de persistência.
+     * @param placa A placa do veículo a ser verificada.
+     * @return true se o veículo já existir, false caso contrário.
+     */
     public static Boolean isDuplicatedVeiculo(String placa) {
         String relativePath = "database/veiculos.tsv";
         File configFile = new File(relativePath);
@@ -155,11 +173,20 @@ public class Veiculo {
         return false;
     }
 
+    /**
+     * Valida se a placa fornecida segue o padrão brasileiro.
+     * @param placa A placa a ser validada.
+     * @return true se a placa for válida, false caso contrário.
+     */
     public static Boolean isValidPlaca(String placa) {
         String regex = "^[A-Za-z]{3}\\d[A-Za-z]\\d{2}$";
         return placa.matches(regex);
     }
 
+    /**
+     * Gera uma lista de veículos disponíveis para reserva ou locação.
+     * @return Uma lista observável de veículos disponíveis.
+     */
     public static ObservableList<Veiculo> generateVeiculosDisponiveis() {
         String relativePath = "database/veiculos.tsv";
         File configFile = new File(relativePath);
@@ -184,6 +211,11 @@ public class Veiculo {
         return veiculos;
     }
 
+    /**
+     * Obtém um veículo pelo número da placa.
+     * @param placa A placa do veículo a ser obtido.
+     * @return O veículo correspondente à placa fornecida, ou null se não for encontrado.
+     */
     public static Veiculo getVeiculoByPlaca(String placa) {
         String relativePath = "database/veiculos.tsv";
         File configFile = new File(relativePath);
@@ -208,6 +240,11 @@ public class Veiculo {
         return veiculo;
     }
 
+    /**
+     * Verifica se um veículo está disponível para reserva ou locação.
+     * @param placa A placa do veículo a ser verificado.
+     * @return true se o veículo estiver disponível, false caso contrário.
+     */
     public static Boolean isDisponivel(String placa) {
         String relativePath = "database/veiculos.tsv";
         File configFile = new File(relativePath);
@@ -234,6 +271,11 @@ public class Veiculo {
         return false;
     }
 
+    /**
+     * Verifica se um veículo está atualmente locado ou reservado.
+     * @param placa A placa do veículo a ser verificado.
+     * @return true se o veículo estiver locado ou reservado, false caso contrário.
+     */
     public static Boolean isLocado(String placa) {
         String relativePath = "database/veiculos.tsv";
         File configFile = new File(relativePath);

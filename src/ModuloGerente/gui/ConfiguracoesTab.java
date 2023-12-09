@@ -15,8 +15,15 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 
+/**
+ * Classe que representa a aba de configurações na interface gráfica do módulo gerente.
+ */
 public class ConfiguracoesTab {
     
+    /**
+     * Cria e retorna uma aba de configurações.
+     * @return A aba de configurações criada.
+     */
     public static Tab createConfiguracoesTab() {
         Tab operationalTab = new Tab("Configurações");
         GridPane operationalGrid = new GridPane();
@@ -26,6 +33,10 @@ public class ConfiguracoesTab {
         return operationalTab;
     }
 
+    /**
+     * Configura o layout e os componentes da aba de configurações.
+     * @param operationalGrid O grid pane onde os componentes serão adicionados.
+     */
     private static void tabConfiguracoes(GridPane operationalGrid) {
         operationalGrid.setVgap(10);
         operationalGrid.setHgap(10);
@@ -166,6 +177,10 @@ public class ConfiguracoesTab {
         Configuracoes.setConfigValues(allConfigValues.get("PREMIUM"), valorDiariaFieldPremium, valorTanqueFieldPremium, valorLimpezaExtFieldPremium, valorLimpezaintFieldPremium, diariaSeguroFieldPremium);
     }
 
+    /**
+     * Exibe um diálogo de confirmação antes de salvar as configurações.
+     * @return Verdadeiro se o usuário confirmar, falso caso contrário.
+     */
     private static Boolean confirmation() {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION); 
         alert.setTitle("Alterar configurações");

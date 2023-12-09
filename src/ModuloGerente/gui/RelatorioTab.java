@@ -7,7 +7,16 @@ import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 import ModuloGerente.Relatorio;
 
+/**
+ * Classe que representa a aba de relatórios na interface gráfica do módulo gerente.
+ */
 public class RelatorioTab {
+
+    /**
+     * Cria e retorna uma aba de relatórios.
+     * @param primaryStage O palco principal da aplicação.
+     * @return A aba de relatórios criada.
+     */
     public static Tab createRelatorioTab(Stage primaryStage) {
         Tab relatorioTab = new Tab("Relatórios");
         GridPane relatorioGrid = new GridPane();
@@ -17,6 +26,11 @@ public class RelatorioTab {
         return relatorioTab;
     }
 
+    /**
+     * Configura o layout e os componentes da aba de relatórios.
+     * @param relatorioGrid O grid pane onde os componentes serão adicionados.
+     * @param primaryStage O palco principal da aplicação.
+     */
     private static void tabRelatorio(GridPane relatorioGrid, Stage primaryStage) {
         TextArea reportArea = new TextArea();
         reportArea.setEditable(false);

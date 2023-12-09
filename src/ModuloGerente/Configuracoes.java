@@ -17,6 +17,9 @@ import java.util.Map;
 
 import javafx.scene.control.TextField;
 
+/**
+ * Classe que representa as configurações de preço e seguro para os grupos de veículos.
+ */
 public class Configuracoes {
     private String nomeGrupo;
     private Float valorDiaria;
@@ -25,6 +28,9 @@ public class Configuracoes {
     private Float valorLimpezaInt;
     private Float diariaSeguro;
 
+    /**
+     * Construtor completo para a classe Configuracoes.
+     */
     public Configuracoes(String nomeGrupo, Float valorDiaria, Float valorTanque, Float valorLimpezaExt,
                          Float valorLimpezaInt, Float diariaSeguro) {
         this.nomeGrupo = nomeGrupo;        
@@ -35,6 +41,9 @@ public class Configuracoes {
         this.diariaSeguro = diariaSeguro;
     }
 
+    /**
+     * Construtor alternativo sem o nome do grupo.
+     */
     public Configuracoes(Float valorDiaria, Float valorTanque, Float valorLimpezaExt,
                          Float valorLimpezaInt, Float diariaSeguro) {   
         this.valorDiaria = valorDiaria;
@@ -94,6 +103,9 @@ public class Configuracoes {
         this.diariaSeguro = diariaSeguro;
     }
 
+    /**
+     * Salva as configurações atuais no arquivo de configurações.
+     */
     public void saveConfiguracoes() {
         String relativePath = "database/configuracoes.tsv";
         File configFile = new File(relativePath);
@@ -129,11 +141,19 @@ public class Configuracoes {
         }
     }
 
+    /**
+     * Cria uma linha de dados para ser salva no arquivo de configurações.
+     * @return String formatada com os dados da configuração.
+     */
     private String createDataLine() {
         return nomeGrupo + "\t" + valorDiaria + "\t" + valorTanque + "\t" + valorLimpezaExt + 
                "\t" + valorLimpezaInt + "\t" + diariaSeguro;
     }
 
+    /**
+     * Salva múltiplas configurações no arquivo de configurações.
+     * @param allConfigurations Uma lista de listas contendo valores de configuração.
+     */
     public static void saveMultiConfiguracoes(List<List<String>> allConfigurations) {
         Path path = Paths.get("database", "configuracoes.tsv");
         
@@ -148,6 +168,11 @@ public class Configuracoes {
         }
     }
 
+    /**
+     * Define os valores de configuração nos campos de texto fornecidos.
+     * @param configValues Uma lista de valores de configuração.
+     * @param fields Campos de texto nos quais os valores serão definidos.
+     */
     public static void setConfigValues(List<String> configValues, TextField... fields) {
         if (configValues != null && configValues.size() == fields.length) {
             for (int i = 0; i < fields.length; i++) {
@@ -158,6 +183,10 @@ public class Configuracoes {
         }
     }
 
+    /**
+     * Lê todas as configurações do arquivo de configurações.
+     * @return Um mapa com as configurações lidas.
+     */
     public static Map<String, List<String>> readAllConfigurations() {
         Map<String, List<String>> allConfigValues = new HashMap<>();
         Path path = Paths.get("database", "configuracoes.tsv");

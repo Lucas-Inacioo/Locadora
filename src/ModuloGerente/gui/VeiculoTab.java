@@ -23,8 +23,15 @@ import java.util.Optional;
 
 import ModuloGerente.Veiculo;
 
+/**
+ * Classe que representa a aba de veículos na interface gráfica do módulo gerente.
+ */
 public class VeiculoTab {
 
+    /**
+     * Cria e retorna uma aba de veículos.
+     * @return A aba de veículos criada.
+     */
     public static Tab createVeiculoTab() {
         Tab veiculoTab = new Tab("Veículos");
         
@@ -70,6 +77,10 @@ public class VeiculoTab {
         return veiculoTab;
     }
 
+    /**
+     * Configura o layout e os componentes da aba de cadastro de novos veículos.
+     * @param veiculoGrid O grid pane onde os componentes serão adicionados.
+     */
     private static void registerNewVeiculo(GridPane veiculoGrid) {
         veiculoGrid.setVgap(10);
         veiculoGrid.setHgap(10);
@@ -192,6 +203,10 @@ public class VeiculoTab {
         veiculoGrid.add(submitButton, 1, 7);
     }
 
+    /**
+     * Configura o layout e os componentes da aba de exclusão de veículos.
+     * @param veiculoGrid O grid pane onde os componentes serão adicionados.
+     */
     private static void deleteVeiculoForm(GridPane veiculoGrid) {
         veiculoGrid.setVgap(10);
         veiculoGrid.setHgap(10);
@@ -204,6 +219,10 @@ public class VeiculoTab {
         addDeleteSubmit(veiculoGrid);
     }
     
+    /**
+     * Mostra a lista de veículos disponíveis para exclusão.
+     * @param veiculoGrid O grid pane onde os veículos serão exibidos.
+     */
     private static void displaygenerateVeiculos(GridPane veiculoGrid) {
         removeNode(veiculoGrid);
         
@@ -277,6 +296,10 @@ public class VeiculoTab {
         veiculoGrid.add(tableView, 0, 2, 7, 10);
     }
 
+    /**
+     * Exibe um diálogo para escolher o motivo da exclusão de um veículo.
+     * @return O motivo selecionado.
+     */
     private static String motivoDialog() {
         Dialog<String> dialog = new Dialog<>();
         dialog.setTitle("Select Motivo");
@@ -302,6 +325,16 @@ public class VeiculoTab {
         return result.orElse(null);
     }
 
+    /**
+     * Exibe um alerta de confirmação para a criação ou exclusão de um veículo.
+     * @param placa A placa do veículo.
+     * @param marca A marca do veículo.
+     * @param modelo O modelo do veículo.
+     * @param cor A cor do veículo.
+     * @param anoFabricacao O ano de fabricação do veículo.
+     * @param nomeGrupo O grupo ao qual o veículo pertence.
+     * @return Verdadeiro se o usuário confirmar a ação.
+     */
     private static Boolean confirmation(String placa, String marca, String modelo,
                                         String cor, String anoFabricacao, String nomeGrupo) {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION); 
@@ -320,6 +353,17 @@ public class VeiculoTab {
         return result.isPresent() && result.get() == ButtonType.OK;
     }
 
+    /**
+     * Exibe um alerta de confirmação para a exclusão de um veículo, incluindo o motivo.
+     * @param placa A placa do veículo.
+     * @param marca A marca do veículo.
+     * @param modelo O modelo do veículo.
+     * @param cor A cor do veículo.
+     * @param anoFabricacao O ano de fabricação do veículo.
+     * @param nomeGrupo O grupo ao qual o veículo pertence.
+     * @param motivo O motivo da exclusão.
+     * @return Verdadeiro se o usuário confirmar a ação.
+     */
     private static Boolean confirmation(String placa, String marca, String modelo,
                                         String cor, String anoFabricacao, String nomeGrupo, String motivo) {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION); 
@@ -339,6 +383,10 @@ public class VeiculoTab {
         return result.isPresent() && result.get() == ButtonType.OK;
     }
 
+    /**
+     * Remove um nó específico do grid pane.
+     * @param veiculoGrid O grid pane do qual o nó será removido.
+     */
     private static void removeNode(GridPane veiculoGrid) {
         Node toRemove = null;
         for (Node node : veiculoGrid.getChildren()) {
@@ -353,6 +401,10 @@ public class VeiculoTab {
         }
     }
 
+    /**
+     * Adiciona um botão de submissão para a exclusão de veículos ao grid pane.
+     * @param veiculoGrid O grid pane onde o botão será adicionado.
+     */
     private static void addDeleteSubmit(GridPane veiculoGrid) {
         int placaFieldRow = 0;
         int placaFieldColumn = 1;
@@ -414,6 +466,13 @@ public class VeiculoTab {
         veiculoGrid.add(submitButton, 0, 2);
     }
 
+    /**
+     * Encontra um campo de texto no grid pane de acordo com a posição da linha e coluna.
+     * @param gridPane O grid pane onde o campo de texto está localizado.
+     * @param row A linha onde o campo de texto está localizado.
+     * @param column A coluna onde o campo de texto está localizado.
+     * @return O campo de texto encontrado ou nulo se não for encontrado.
+     */
     private static TextField findTextFieldByGridPosition(GridPane gridPane, int row, int column) {
         for (Node node : gridPane.getChildren()) {
             if (GridPane.getRowIndex(node) != null && GridPane.getRowIndex(node) == row 

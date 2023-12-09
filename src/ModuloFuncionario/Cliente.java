@@ -11,6 +11,9 @@ import java.time.Period;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
+/**
+ * Representa um cliente no sistema de gerenciamento de aluguel de veículos.
+ */
 public class Cliente {
     private String CPF;
     private String nomeCliente;
@@ -18,6 +21,14 @@ public class Cliente {
     private String email;
     private String numeroCelular;
 
+    /**
+     * Construtor para criar um novo objeto Cliente.
+     * @param CPF CPF do cliente.
+     * @param nomeCliente Nome do cliente.
+     * @param dataNascimento Data de nascimento do cliente.
+     * @param email Email do cliente.
+     * @param numeroCelular Número de celular do cliente.
+     */
     public Cliente(String CPF, String nomeCliente, String dataNascimento, String email, String numeroCelular) {
         this.CPF = CPF;
         this.nomeCliente = nomeCliente;
@@ -68,6 +79,9 @@ public class Cliente {
         this.numeroCelular = numeroCelular;
     }
 
+    /**
+     * Salva os detalhes do cliente no arquivo de banco de dados.
+     */
     public void saveCliente() {
         String data =   CPF + "\t" + nomeCliente + "\t" + dataNascimento + "\t" + email + "\t" + 
                         numeroCelular + "\n";
@@ -81,6 +95,11 @@ public class Cliente {
         }
     }
 
+    /**
+     * Verifica se um cliente com o mesmo CPF já está registrado no sistema.
+     * @param CPF CPF do cliente a ser verificado.
+     * @return Retorna verdadeiro se o CPF já estiver registrado, falso caso contrário.
+     */
     public static Boolean isDuplicatedCliente(String CPF) {
         String relativePath = "database/clientes.tsv";
         File configFile = new File(relativePath);
@@ -106,6 +125,11 @@ public class Cliente {
         return false;
     }
 
+    /**
+     * Valida se um CPF é válido com base nos critérios de validação de CPF brasileiro.
+     * @param cpf CPF a ser validado.
+     * @return Retorna verdadeiro se o CPF for válido, falso caso contrário.
+     */
     public static boolean isValidCPF(String cpf) {
         int cpfLength = 11;
         int maxNumbersToCheck = 9;
@@ -131,6 +155,11 @@ public class Cliente {
         return cpf.substring(maxNumbersToCheck, cpfLength).equals("" + firstDigit + secondDigit);
     }
 
+    /**
+     * Valida se uma data de nascimento é válida e se o indivíduo tem pelo menos 18 anos.
+     * @param dataNasc Data de nascimento a ser validada.
+     * @return Retorna verdadeiro se a data de nascimento for válida e o indivíduo tiver pelo menos 18 anos.
+     */
     public static boolean isValidDataNascimento(String dataNasc) {
         if (dataNasc.length() != 8) {
             return false;
@@ -152,6 +181,11 @@ public class Cliente {
         }
     }
 
+    /**
+     * Verifica se um email é válido.
+     * @param email Email a ser validado.
+     * @return Retorna verdadeiro se o email for válido, falso caso contrário.
+     */
     public static boolean isValidEmail(String email) {
         if (email.length() < 5 || email.length() > 254) {
             return false;
@@ -172,6 +206,11 @@ public class Cliente {
         return true;
     }
 
+    /**
+     * Verifica se um cliente cadastrado com um dado CPF é menor de idade (menor que 18 anos ou entre 18 e 21 anos).
+     * @param CPF CPF do cliente a ser verificado.
+     * @return Retorna verdadeiro se o cliente for menor de idade, falso caso contrário.
+     */
     public static boolean isUnderAge(String CPF) {
         String relativePath = "database/clientes.tsv";
         File configFile = new File(relativePath);

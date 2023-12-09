@@ -39,8 +39,17 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.SelectionMode;
 
+/**
+ * Classe que gerencia a aba de reservas na interface do funcionário.
+ * Permite criar, visualizar, confirmar, cancelar e concluir reservas.
+ */
 public class ReservaTab {
 
+    /**
+     * Cria a aba de reservas para o funcionário com todas as funcionalidades necessárias.
+     * @param primaryStage Palco principal da aplicação.
+     * @return Retorna a aba de reservas configurada.
+     */
     public static Tab createVeiculosDisponiveisTab(Stage primaryStage) {
         Tab reservationTab = new Tab("Reservas");
 
@@ -175,6 +184,11 @@ public class ReservaTab {
         return reservationTab;
     }
 
+    /**
+     * Configura a interface para buscar veículos disponíveis.
+     * @param reservationGrid Grade onde os elementos da interface serão adicionados.
+     * @param primaryStage Palco principal da aplicação.
+     */
     private static void tabVeiculosDisponiveis(GridPane reservationGrid, Stage primaryStage) {
         reservationGrid.setVgap(10);
         reservationGrid.setHgap(10);
@@ -200,6 +214,13 @@ public class ReservaTab {
         reservationGrid.add(submitButton, 2, 1);
     }
 
+    /**
+     * Mostra grupos de veículos disponíveis para reserva.
+     * @param reservationGrid Grade onde os elementos da interface serão adicionados.
+     * @param primaryStage Palco principal da aplicação.
+     * @param dataRetirada Data de início da reserva.
+     * @param dataDevolucao Data de fim da reserva.
+     */
     private static void displayGrupos(GridPane reservationGrid, Stage primaryStage, String dataRetirada, String dataDevolucao) {
         removeNode(reservationGrid);
         
@@ -214,6 +235,14 @@ public class ReservaTab {
         reservationGrid.add(listView, 0, 2, 2, 3);
     }
 
+    /**
+     * Exibe veículos disponíveis de um grupo selecionado.
+     * @param reservationGrid Grade onde os elementos da interface serão adicionados.
+     * @param primaryStage Palco principal da aplicação.
+     * @param selectedGrupo Grupo de veículos selecionado.
+     * @param dataRetirada Data de início da reserva.
+     * @param dataDevolucao Data de fim da reserva.
+     */
     private static void displaygenerateVeiculos(GridPane reservationGrid, Stage primaryStage, String selectedGrupo, String dataRetirada, String dataDevolucao) {
         removeNode(reservationGrid);
         
@@ -339,6 +368,10 @@ public class ReservaTab {
         reservationGrid.add(tableView, 0, 2, 7, 10);
     }
 
+    /**
+     * Exibe opções de serviços adicionais para uma reserva.
+     * @return Retorna uma lista de booleanos indicando os serviços selecionados.
+     */
     private static List<Boolean> displayServices() {
         Dialog<List<Boolean>> dialog = new Dialog<>();
         dialog.setTitle("Serviços");
@@ -366,6 +399,10 @@ public class ReservaTab {
         return result.orElse(null);
     }
 
+    /**
+     * Remove um nó específico da grade.
+     * @param veiculoGrid Grade de onde o nó será removido.
+     */
     private static void removeNode(GridPane veiculoGrid) {
         Node toRemove = null;
         for (Node node : veiculoGrid.getChildren()) {
@@ -380,6 +417,12 @@ public class ReservaTab {
         }
     }
 
+    /**
+     * Configura a interface para excluir reservas.
+     * Permite ao usuário buscar reservas por CPF ou ID de locação para cancelamento.
+     * @param reservationGrid Grade onde os elementos da interface serão adicionados.
+     * @param primaryStage Palco principal da aplicação.
+     */
     private static void tabDeleteReservationForm(GridPane reservationGrid, Stage primaryStage) {
         reservationGrid.setVgap(10);
         reservationGrid.setHgap(10);
@@ -433,6 +476,13 @@ public class ReservaTab {
         reservationGrid.add(submitButton, 2, 1);
     }
     
+    /**
+     * Exibe reservas em uma tabela.
+     * Permite interação com as reservas para atualização de status.
+     * @param reservationGrid Grade onde os elementos da interface serão adicionados.
+     * @param reservations Lista de reservas a serem exibidas.
+     * @param reason Razão pela qual o status da reserva pode ser alterado.
+     */
     private static void displayReservations(GridPane reservationGrid, ObservableList<Reserva> reservations, String reason) {
         removeNode(reservationGrid);
         
@@ -491,6 +541,12 @@ public class ReservaTab {
         reservationGrid.add(tableView, 0, 2, 7, 10);
     }
 
+    /**
+     * Configura a interface para identificar e tratar reservas classificadas como 'No Show'.
+     * 'No Show' ocorre quando o cliente não aparece para pegar o veículo na data marcada.
+     * @param reservationGrid Grade onde os elementos da interface serão adicionados.
+     * @param primaryStage Palco principal da aplicação.
+     */
     private static void tabDeleteNoShowForm(GridPane reservationGrid, Stage primaryStage) {
         removeNode(reservationGrid);
 
@@ -553,6 +609,12 @@ public class ReservaTab {
         reservationGrid.add(tableView, 0, 2, 7, 1);
     }
 
+    /**
+     * Configura a interface para confirmar reservas.
+     * Permite ao usuário buscar reservas por CPF ou ID de locação para confirmação.
+     * @param reservationGrid Grade onde os elementos da interface serão adicionados.
+     * @param primaryStage Palco principal da aplicação.
+     */
     private static void tabConfirmReservation(GridPane reservationGrid, Stage primaryStage) {
         reservationGrid.setVgap(10);
         reservationGrid.setHgap(10);
@@ -606,6 +668,12 @@ public class ReservaTab {
         reservationGrid.add(submitButton, 2, 1);
     }
 
+    /**
+     * Configura a interface para concluir reservas.
+     * Permite ao usuário buscar reservas por placa do veículo para finalização.
+     * @param reservationGrid Grade onde os elementos da interface serão adicionados.
+     * @param primaryStage Palco principal da aplicação.
+     */
     private static void tabConcludeReservation(GridPane reservationGrid, Stage primaryStage) {
         reservationGrid.setVgap(10);
         reservationGrid.setHgap(10);
@@ -666,6 +734,12 @@ public class ReservaTab {
         reservationGrid.add(submitButton, 2, 1);
     }
 
+    /**
+     * Exibe uma caixa de diálogo de confirmação para uma pergunta específica.
+     * @param title Título da caixa de diálogo.
+     * @param content Conteúdo da pergunta.
+     * @return Retorna verdadeiro se o usuário confirmar, falso caso contrário.
+     */
     private static boolean askYesNoQuestion(String title, String content) {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle(title);
@@ -674,6 +748,10 @@ public class ReservaTab {
         return result.isPresent() && result.get() == ButtonType.OK;
     }
 
+    /**
+     * Exibe uma caixa de diálogo para escolher o nível de combustível do veículo.
+     * @return Retorna o nível de combustível selecionado pelo usuário.
+     */
     private static String askForGasLevel() {
         List<String> choices = new ArrayList<>();
     
@@ -690,6 +768,12 @@ public class ReservaTab {
         return result.orElse("1.0");
     }
 
+    /**
+     * Exibe uma caixa de diálogo de confirmação para a conclusão, cancelamento ou confirmação de uma reserva.
+     * @param reserva Objeto Reserva que está sendo processado.
+     * @param reason Razão pela qual a reserva está sendo processada (cancelamento, confirmação, etc.).
+     * @return Retorna verdadeiro se o usuário confirmar a ação, falso caso contrário.
+     */
     private static Boolean confirmation(Reserva reserva, Reason reason) {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         Optional<ButtonType> result;
