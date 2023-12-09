@@ -45,7 +45,9 @@ public class ReservaTab {
         HBox menuButtons = new HBox();
         Button btnNewReservation = new Button("Nova Reserva");
         Button btnDelReservation = new Button("Excluir Reserva");
-        menuButtons.getChildren().addAll(btnNewReservation, btnDelReservation);
+        Button btnDelNoShow = new Button("Excluir No Shows");
+        Button btnConfirmReservation = new Button("Confirmar Reserva");
+        menuButtons.getChildren().addAll(btnNewReservation, btnDelReservation, btnDelNoShow, btnConfirmReservation);
 
         StackPane formsContainer = new StackPane();
 
@@ -53,9 +55,15 @@ public class ReservaTab {
         tabVeiculosDisponiveis(registerNewReservationForm, primaryStage);
 
         GridPane deleteReservationForm = new GridPane();
-        deleteReservationForm(deleteReservationForm, primaryStage);
+        tabDeleteReservationForm(deleteReservationForm, primaryStage);
 
-        formsContainer.getChildren().addAll(registerNewReservationForm, deleteReservationForm);
+        GridPane deleteNoShowForm = new GridPane();
+        tabDeleteNoShowForm(deleteNoShowForm, primaryStage);
+
+        GridPane confirmReservation = new GridPane();
+        tabConfirmReservation(confirmReservation, primaryStage);
+
+        formsContainer.getChildren().addAll(registerNewReservationForm, deleteReservationForm, deleteNoShowForm, confirmReservation);
 
         btnNewReservation.setOnAction(e -> {
             registerNewReservationForm.setVisible(true);
@@ -63,6 +71,12 @@ public class ReservaTab {
         
             deleteReservationForm.setVisible(false);
             deleteReservationForm.setManaged(false);
+            
+            deleteNoShowForm.setVisible(false);
+            deleteNoShowForm.setManaged(false);
+
+            confirmReservation.setVisible(false);
+            confirmReservation.setManaged(false);
         });
         
         btnDelReservation.setOnAction(e -> {
@@ -71,6 +85,41 @@ public class ReservaTab {
         
             registerNewReservationForm.setVisible(false);
             registerNewReservationForm.setManaged(false);
+            
+            deleteNoShowForm.setVisible(false);
+            deleteNoShowForm.setManaged(false);
+            
+            confirmReservation.setVisible(false);
+            confirmReservation.setManaged(false);
+        });
+
+        btnDelNoShow.setOnAction(e -> {
+            tabDeleteNoShowForm(deleteNoShowForm, primaryStage);
+            deleteNoShowForm.setVisible(true);
+            deleteNoShowForm.setManaged(true);
+        
+            registerNewReservationForm.setVisible(false);
+            registerNewReservationForm.setManaged(false);
+            
+            deleteReservationForm.setVisible(false);
+            deleteReservationForm.setManaged(false);
+
+            confirmReservation.setVisible(false);
+            confirmReservation.setManaged(false);
+        });
+
+        btnConfirmReservation.setOnAction(e -> {
+            confirmReservation.setVisible(true);
+            confirmReservation.setManaged(true);
+
+            deleteNoShowForm.setVisible(false);
+            deleteNoShowForm.setManaged(false);
+        
+            registerNewReservationForm.setVisible(false);
+            registerNewReservationForm.setManaged(false);
+            
+            deleteReservationForm.setVisible(false);
+            deleteReservationForm.setManaged(false);
         });
         
         BorderPane borderPane = new BorderPane();
@@ -78,6 +127,10 @@ public class ReservaTab {
         borderPane.setCenter(formsContainer);
         deleteReservationForm.setVisible(false);
         deleteReservationForm.setManaged(false);
+        deleteNoShowForm.setVisible(false);
+        deleteNoShowForm.setManaged(false);
+        confirmReservation.setVisible(false);
+        confirmReservation.setManaged(false);
         
         reservationTab.setContent(borderPane);
 
@@ -218,19 +271,20 @@ public class ReservaTab {
 
                 float valorlocacao = Reserva.calculateLocacaoPrice(selectedGrupo, seguro, limpezaInt, limpezaExt, daysBetween);
 
-                if (confirmation(idLocacao, CPF, placa, dataRetirada, dataDevolucao, valorlocacao, seguro, limpezaInt, limpezaExt, reservationGrid)) {
-                    Reserva reserva = new Reserva(
-                        idLocacao,
-                        CPF,
-                        placa,
-                        dataRetirada,
-                        dataDevolucao,
-                        valorlocacao,
-                        "ATIVA",
-                        seguro,
-                        limpezaInt,
-                        limpezaExt
-                    );
+                Reserva reserva = new Reserva(
+                    idLocacao,
+                    CPF,
+                    placa,
+                    dataRetirada,
+                    dataDevolucao,
+                    valorlocacao,
+                    "ATIVA",
+                    seguro,
+                    limpezaInt,
+                    limpezaExt
+                );
+
+                if (confirmation(reserva, Reason.CREATE)) {  
                     reserva.saveReserva();
 
                     Alert alert = new Alert(Alert.AlertType.INFORMATION, "Reserva feita para o CPF: " + CPF + 
@@ -286,27 +340,7 @@ public class ReservaTab {
         }
     }
 
-    private static Boolean confirmation(long idLocacao, String CPF, String placa, String dataRetirada, String dataDevolucao, float valorlocacao, Boolean seguro, Boolean limpezaInt, Boolean limpezaExt, GridPane reservationGrid) {
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION); 
-        alert.setTitle("Criar reserva?");
-        alert.setHeaderText("Você está prestes a criar a seguinte reserva: "); 
-        alert.setContentText(
-                    "idLocacao: " + idLocacao + "\n" +
-                    "CPF cliente: " + CPF + "\n" +
-                    "Placa do veículo: " + placa + "\n" +
-                    "Data de retirada: " + dataRetirada + "\n" +
-                    "Data de devolução: " + dataDevolucao + "\n" +
-                    "Valor da locação: " + valorlocacao + "\n" +
-                    "Seguro: " + seguro + "\n" +
-                    "Limpeza interna: " + limpezaInt + "\n" +
-                    "Limpeza externa: " + limpezaExt + "\n"
-                    );
-
-        Optional<ButtonType> result = alert.showAndWait();
-        return result.isPresent() && result.get() == ButtonType.OK;
-    }
-
-    private static void deleteReservationForm(GridPane reservationGrid, Stage primaryStage) {
+    private static void tabDeleteReservationForm(GridPane reservationGrid, Stage primaryStage) {
         reservationGrid.setVgap(10);
         reservationGrid.setHgap(10);
     
@@ -340,7 +374,7 @@ public class ReservaTab {
         submitButton.setOnAction(e -> {
             if (!cpfTextField.getText().trim().isEmpty()) {
                 ObservableList<Reserva> reservations = Reserva.getReservationsByCPF(cpfTextField.getText().trim());
-                displayReservations(reservationGrid, reservations);
+                displayReservations(reservationGrid, reservations, "CANCELADA");
             }
             else if (!idLocacaoTextField.getText().trim().isEmpty()) {
                 if (!Reserva.isDuplicatedReserva(idLocacaoTextField.getText())) {
@@ -348,8 +382,8 @@ public class ReservaTab {
                     alert.showAndWait();
                     return;
                 }
-                if (confirmation(Reserva.getReservaByID(idLocacaoTextField.getText()), reservationGrid)) {
-                    Reserva.deleteReserva(idLocacaoTextField.getText());
+                if (confirmation(Reserva.getReservaByID(idLocacaoTextField.getText()), Reason.CANCELADA)) {
+                    Reserva.updateReserva(idLocacaoTextField.getText(), "CANCELADA");
                     Alert alert = new Alert(Alert.AlertType.INFORMATION, "Reserva excluída");
                     alert.showAndWait();
                     removeNode(reservationGrid);
@@ -359,7 +393,7 @@ public class ReservaTab {
         reservationGrid.add(submitButton, 2, 1);
     }
     
-    private static void displayReservations(GridPane reservationGrid, ObservableList<Reserva> reservations) {
+    private static void displayReservations(GridPane reservationGrid, ObservableList<Reserva> reservations, String reason) {
         removeNode(reservationGrid);
         
         TableView<Reserva> tableView = new TableView<>(reservations);
@@ -406,9 +440,9 @@ public class ReservaTab {
             if (event.getClickCount() == 2 && !tableView.getSelectionModel().isEmpty()) {
                 Reserva selectedReservation = tableView.getSelectionModel().getSelectedItem();
                 
-                if (confirmation(selectedReservation, reservationGrid)) {
-                    Reserva.deleteReserva(selectedReservation.getIdentificador().toString());
-                    Alert alert = new Alert(Alert.AlertType.INFORMATION, "Reserva excluída");
+                if (confirmation(selectedReservation, Reason.valueOf(reason))) {
+                    Reserva.updateReserva(selectedReservation.getIdentificador().toString(), reason);
+                    Alert alert = new Alert(Alert.AlertType.INFORMATION, "Reserva atualizada!");
                     alert.showAndWait();
                     removeNode(reservationGrid);
                 }
@@ -417,21 +451,194 @@ public class ReservaTab {
         reservationGrid.add(tableView, 0, 2, 7, 10);
     }
 
-    private static Boolean confirmation(Reserva selectedReservation, GridPane reservationGrid) {
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION); 
-        alert.setTitle("Deletar reserva?");
-        alert.setHeaderText("Você está prestes a Deletar a seguinte reserva: "); 
-        alert.setContentText(
-                    "idLocacao: " + selectedReservation.getIdentificador() + "\n" +
-                    "CPF cliente: " + selectedReservation.getCPFCliente() + "\n" +
-                    "Placa do veículo: " + selectedReservation.getPlaca() + "\n" +
-                    "Data de retirada: " + selectedReservation.getDataRetirada() + "\n" +
-                    "Data de devolução: " + selectedReservation.getDataDevolucao() + "\n" +
-                    "Valor da locação: " + selectedReservation.getValorLocacao() + "\n"
-                    );
+    private static void tabDeleteNoShowForm(GridPane reservationGrid, Stage primaryStage) {
+        removeNode(reservationGrid);
 
-        Optional<ButtonType> result = alert.showAndWait();
-        return result.isPresent() && result.get() == ButtonType.OK;
+        ObservableList<Reserva> reservations = Reserva.findNoShowCandidates(LocalDate.now());
+        
+        TableView<Reserva> tableView = new TableView<>(reservations);
+    
+        TableColumn<Reserva, String> idLocacaoColumn = new TableColumn<>("ID Locação");
+        idLocacaoColumn.setCellValueFactory(new PropertyValueFactory<>("identificador"));
+    
+        TableColumn<Reserva, String> CPFColumn = new TableColumn<>("CPF");
+        CPFColumn.setCellValueFactory(new PropertyValueFactory<>("CPFCliente"));
+    
+        TableColumn<Reserva, String> placaColumn = new TableColumn<>("Placa");
+        placaColumn.setCellValueFactory(new PropertyValueFactory<>("Placa"));
+    
+        TableColumn<Reserva, String> dataRetiradaColumn = new TableColumn<>("Data de Retirada");
+        dataRetiradaColumn.setCellValueFactory(new PropertyValueFactory<>("dataRetirada"));
+    
+        TableColumn<Reserva, String> dataDevolucaoColumn = new TableColumn<>("Data de Devolução");
+        dataDevolucaoColumn.setCellValueFactory(new PropertyValueFactory<>("dataDevolucao"));
+    
+        TableColumn<Reserva, String> valorLocacaoColumn = new TableColumn<>("Valor da Locação");
+        valorLocacaoColumn.setCellValueFactory(new PropertyValueFactory<>("valorLocacao"));
+    
+        TableColumn<Reserva, String> statusColumn = new TableColumn<>("Status");
+        statusColumn.setCellValueFactory(new PropertyValueFactory<>("status"));
+    
+        tableView.getColumns().add(idLocacaoColumn);
+        tableView.getColumns().add(CPFColumn);
+        tableView.getColumns().add(placaColumn);
+        tableView.getColumns().add(dataRetiradaColumn);
+        tableView.getColumns().add(dataDevolucaoColumn);
+        tableView.getColumns().add(valorLocacaoColumn);
+        tableView.getColumns().add(statusColumn);
+        
+        statusColumn.prefWidthProperty().bind(tableView.widthProperty().subtract(
+            idLocacaoColumn.widthProperty()
+            .add(CPFColumn.widthProperty())
+            .add(placaColumn.widthProperty())
+            .add(dataRetiradaColumn.widthProperty())
+            .add(dataDevolucaoColumn.widthProperty())
+            .add(valorLocacaoColumn.widthProperty())
+        ));
+
+        tableView.setOnMouseClicked(event -> {
+            if (event.getClickCount() == 2 && !tableView.getSelectionModel().isEmpty()) {
+                Reserva selectedReserva = tableView.getSelectionModel().getSelectedItem();
+
+                long idLocacao = selectedReserva.getIdentificador();
+                if (confirmation(selectedReserva, Reason.NOSHOW)) {
+                    Reserva.updateReserva(Long.toString(idLocacao), "NO-SHOW");
+                    Alert alert = new Alert(Alert.AlertType.INFORMATION, "No-show declarado");
+                    alert.showAndWait();
+                    tabDeleteNoShowForm(reservationGrid, primaryStage);
+                }
+            }
+        });
+
+        reservationGrid.add(tableView, 0, 2, 7, 1);
     }
 
+    private static void tabConfirmReservation(GridPane reservationGrid, Stage primaryStage) {
+        reservationGrid.setVgap(10);
+        reservationGrid.setHgap(10);
+    
+        Label cpfLabel = new Label("CPF:");
+        TextField cpfTextField = new TextField();
+        reservationGrid.add(cpfLabel, 0, 0);
+        reservationGrid.add(cpfTextField, 0, 1);
+    
+        Label idLocacaoLabel = new Label("ID Locação:");
+        TextField idLocacaoTextField = new TextField();
+        reservationGrid.add(idLocacaoLabel, 1, 0);
+        reservationGrid.add(idLocacaoTextField, 1, 1);
+    
+        cpfTextField.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue.trim().isEmpty()) {
+                idLocacaoTextField.setDisable(true);
+            } else {
+                idLocacaoTextField.setDisable(false);
+            }
+        });
+    
+        idLocacaoTextField.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue.trim().isEmpty()) {
+                cpfTextField.setDisable(true);
+            } else {
+                cpfTextField.setDisable(false);
+            }
+        });
+    
+        Button submitButton = new Button("Buscar Reservas");
+        submitButton.setOnAction(e -> {
+            if (!cpfTextField.getText().trim().isEmpty()) {
+                ObservableList<Reserva> reservations = Reserva.getReservationsByCPF(cpfTextField.getText().trim());
+                displayReservations(reservationGrid, reservations, "EFETIVADA");
+            }
+            else if (!idLocacaoTextField.getText().trim().isEmpty()) {
+                if (!Reserva.isDuplicatedReserva(idLocacaoTextField.getText())) {
+                    Alert alert = new Alert(Alert.AlertType.ERROR, "Reserva não encontrada");
+                    alert.showAndWait();
+                    return;
+                }
+                if (confirmation(Reserva.getReservaByID(idLocacaoTextField.getText()), Reason.EFETIVADA)) {
+                    Reserva.updateReserva(idLocacaoTextField.getText(), "EFETIVADA");
+                    Alert alert = new Alert(Alert.AlertType.INFORMATION, "Reserva efetivada");
+                    alert.showAndWait();
+                    removeNode(reservationGrid);
+                }
+            }
+        });
+        reservationGrid.add(submitButton, 2, 1);
+    }
+
+    private static Boolean confirmation(Reserva reserva, Reason reason) {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        Optional<ButtonType> result;
+
+        switch (reason) {
+            case Reason.NOSHOW:
+                alert.setTitle("Declarar no-show?");
+                alert.setHeaderText("Você está prestes a declarar no-show para a seguinte reserva:"); 
+                alert.setContentText("Identificador: " + reserva.getIdentificador() + "\n" +
+                                    "CPF: " + reserva.getCPFCliente() + "\n" +
+                                    "Placa: " + reserva.getPlaca() + "\n" +
+                                    "Data de retirada: " + reserva.getDataRetirada() + "\n" +
+                                    "Data de devolução: " + reserva.getDataDevolucao() + "\n" +
+                                    "Valor da locação: " + reserva.getValorLocacao() + "\n");
+
+                result = alert.showAndWait();
+                return result.isPresent() && result.get() == ButtonType.OK;
+            
+            case Reason.CANCELADA:
+                alert.setTitle("Cancelar reserva?");
+                alert.setHeaderText("Você está prestes a cancelar a seguinte reserva:"); 
+                alert.setContentText("Identificador: " + reserva.getIdentificador() + "\n" +
+                                    "CPF: " + reserva.getCPFCliente() + "\n" +
+                                    "Placa: " + reserva.getPlaca() + "\n" +
+                                    "Data de retirada: " + reserva.getDataRetirada() + "\n" +
+                                    "Data de devolução: " + reserva.getDataDevolucao() + "\n" +
+                                    "Valor da locação: " + reserva.getValorLocacao() + "\n");
+
+                result = alert.showAndWait();
+                return result.isPresent() && result.get() == ButtonType.OK;
+
+            case Reason.CONCLUIDA:
+                alert.setTitle("Efetivar devolução?");
+                alert.setHeaderText("Você está prestes a efetivar a seguinte devolução:"); 
+                alert.setContentText("Identificador: " + reserva.getIdentificador() + "\n" +
+                                    "CPF: " + reserva.getCPFCliente() + "\n" +
+                                    "Placa: " + reserva.getPlaca() + "\n" +
+                                    "Data de retirada: " + reserva.getDataRetirada() + "\n" +
+                                    "Data de devolução: " + reserva.getDataDevolucao() + "\n" +
+                                    "Valor da locação: " + reserva.getValorLocacao() + "\n");
+
+                result = alert.showAndWait();
+                return result.isPresent() && result.get() == ButtonType.OK;
+
+            case Reason.EFETIVADA:
+                alert.setTitle("Confirmar reserva?");
+                alert.setHeaderText("Você está prestes a confirmar a seguinte reserva:"); 
+                alert.setContentText("Identificador: " + reserva.getIdentificador() + "\n" +
+                                    "CPF: " + reserva.getCPFCliente() + "\n" +
+                                    "Placa: " + reserva.getPlaca() + "\n" +
+                                    "Data de retirada: " + reserva.getDataRetirada() + "\n" +
+                                    "Data de devolução: " + reserva.getDataDevolucao() + "\n" +
+                                    "Valor da locação: " + reserva.getValorLocacao() + "\n");
+
+                result = alert.showAndWait();
+                return result.isPresent() && result.get() == ButtonType.OK;
+
+            case Reason.CREATE:
+                alert.setTitle("Confirmar reserva?");
+                alert.setHeaderText("Você está prestes a confirmar a seguinte reserva:"); 
+                alert.setContentText("Identificador: " + reserva.getIdentificador() + "\n" +
+                                    "CPF: " + reserva.getCPFCliente() + "\n" +
+                                    "Placa: " + reserva.getPlaca() + "\n" +
+                                    "Data de retirada: " + reserva.getDataRetirada() + "\n" +
+                                    "Data de devolução: " + reserva.getDataDevolucao() + "\n" +
+                                    "Valor da locação: " + reserva.getValorLocacao() + "\n");
+
+                result = alert.showAndWait();
+                return result.isPresent() && result.get() == ButtonType.OK;
+
+            default:
+                return false;
+        }
+        
+    }
 }

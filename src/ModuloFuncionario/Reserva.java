@@ -272,7 +272,7 @@ public class Reserva {
             while ((line = br.readLine()) != null) {
                 String[] parts = line.split("\t");
                 String cpf = parts[1].trim();
-                if (cpf.equals(CPF)) {
+                if (cpf.equals(CPF)  && parts[6].equals("ATIVA")) {
                     Reserva reserva = new Reserva(Long.parseLong(parts[0].trim()), parts[1].trim(), parts[2].trim(), parts[3].trim(), parts[4].trim(), Float.parseFloat(parts[5].trim()), parts[6].trim(), false, false, false);
                     reservationList.add(reserva);
                 }
@@ -329,36 +329,58 @@ public class Reserva {
         return false;
     }
 
-    public static void deleteReserva(String identificador) {
-        deleteFromFile("database/reservas.tsv", identificador);
-        deleteFromFile("database/reservasDetalhes.tsv", identificador);
-    }
+    public static void updateReserva(String identificador, String reason) {
+        File inputFile = new File("database/reservas.tsv");
+        File tempFile = new File("database/reservas_temp.tsv");
 
-    private static void deleteFromFile(String filePath, String identificador) {
-        File configFile = new File(filePath);
-        if (!configFile.exists()) {
-            return; // If file does not exist, return immediately
+        try (BufferedReader reader = new BufferedReader(new FileReader(inputFile));
+             BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile))) {
+
+            String currentLine;
+
+            while ((currentLine = reader.readLine()) != null) {
+                String[] data = currentLine.split("\t");
+                if (data[0].equals(identificador)) {
+                    data[6] = reason;
+                    currentLine = String.join("\t", data);
+                }
+                writer.write(currentLine + System.lineSeparator());
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
 
-        List<String> linesToKeep = new ArrayList<>();
-        try (BufferedReader reader = new BufferedReader(new FileReader(configFile))) {
+        if (inputFile.delete()) {
+            if (!tempFile.renameTo(inputFile)) {
+                System.out.println("Could not rename the temporary file.");
+            }
+        } else {
+            System.out.println("Could not delete the original file.");
+        }
+    }
+
+    public static ObservableList<Reserva> findNoShowCandidates(LocalDate today) {
+        ObservableList<Reserva> candidates = FXCollections.observableArrayList();
+
+        Path path = Paths.get("database", "reservas.tsv");
+
+        try (BufferedReader br = Files.newBufferedReader(path)) {
             String line;
-            while ((line = reader.readLine()) != null) {
-                if (!line.startsWith(identificador + "\t")) {
-                    linesToKeep.add(line);
+            while ((line = br.readLine()) != null) {
+                String[] parts = line.split("\t");
+                LocalDate startDate = LocalDate.parse(parts[3], DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+                String status = parts[6];
+
+                if (!startDate.isAfter(today) && status.equals("ATIVA")) {
+                    Reserva reserva = new Reserva(Long.parseLong(parts[0].trim()), parts[1].trim(), parts[2].trim(), parts[3].trim(), parts[4].trim(), Float.parseFloat(parts[5].trim()), parts[6].trim(), false, false, false);
+                    candidates.add(reserva);
                 }
             }
         } catch (IOException e) {
+            System.out.println("Failed to read file: " + e.getMessage());
             e.printStackTrace();
         }
 
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(configFile, false))) {
-            for (String line : linesToKeep) {
-                writer.write(line);
-                writer.newLine();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        return candidates;
     }
 }
