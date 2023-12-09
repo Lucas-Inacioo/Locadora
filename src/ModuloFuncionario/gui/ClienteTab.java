@@ -4,6 +4,9 @@ import javafx.scene.control.Tab;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.Optional;
 
 import ModuloFuncionario.Cliente;
@@ -94,8 +97,20 @@ public class ClienteTab {
                                            .replaceAll("\\.", "")
                                            .replaceAll("-", "");
             String nome = nomeClienteField.getText().replaceAll(" ", "");
-            String dataNasc = dataNascimentoField.getText().replaceAll(" ", "")
-                                                           .replaceAll("\\/", "");
+            String dataNasc = dataNascimentoField.getText().trim();
+            try {
+                DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+                DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+                LocalDate date = LocalDate.parse(dataNasc, inputFormatter);
+                dataNasc = date.format(outputFormatter);
+            } catch (DateTimeParseException ex) {
+                Alert alert = new Alert(Alert.AlertType.WARNING); 
+                alert.setTitle("Data de nascimento inválida");
+                alert.setHeaderText("Data de nascimento inválida"); 
+                alert.setContentText("A data de nascimento inserida é inválida!");
+                alert.showAndWait();
+                return;
+            }
             String email = emailField.getText().replaceAll(" ", "");
             String celular = numeroCelularField.getText().replaceAll(" ", "")
                                                          .replaceAll("\\(", "")
