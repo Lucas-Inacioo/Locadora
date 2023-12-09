@@ -20,7 +20,7 @@ public class Relatorio {
         try {
             long totalReservations = Files.lines(Paths.get("database/reservas.tsv"))
                                           .count();
-            return "Total Reservations: " + totalReservations;
+            return "Total de reservas: " + totalReservations;
         } catch (Exception e) {
             e.printStackTrace();
             return "Error generating report";
@@ -39,7 +39,7 @@ public class Relatorio {
                                        .filter(parts -> parts[6].equals("CONCLUIDA") || parts[6].equals("EFETIVADA"))
                                        .mapToDouble(parts -> Double.parseDouble(parts[5]))
                                        .sum();
-            return "Total Revenue: " + totalRevenue;
+            return "Total de receitas: " + totalRevenue;
         } catch (Exception e) {
             e.printStackTrace();
             return "Error generating report";
