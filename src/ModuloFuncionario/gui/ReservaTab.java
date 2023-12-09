@@ -205,11 +205,27 @@ public class ReservaTab {
 
         Button submitButton = new Button("Buscar Veículos Disponíveis");
         submitButton.setOnAction(e -> {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-            String dataRetiradaField = dataRetiradaPicker.getValue().format(formatter);
-            String dataDevolucaoField = dataDevolucaoPicker.getValue().format(formatter);
-            
-            displayGrupos(reservationGrid, primaryStage, dataRetiradaField, dataDevolucaoField);
+            if (dataRetiradaPicker.getValue() != null && dataDevolucaoPicker.getValue() != null) {
+                if (dataDevolucaoPicker.getValue().isBefore(dataRetiradaPicker.getValue())) {
+                    Alert alert = new Alert(Alert.AlertType.WARNING);
+                    alert.setTitle("Data Inválida");
+                    alert.setHeaderText("Data de Devolução Inválida");
+                    alert.setContentText("A data de devolução não pode ser anterior à data de retirada.");
+                    alert.showAndWait();
+                } else {
+                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+                    String dataRetiradaField = dataRetiradaPicker.getValue().format(formatter);
+                    String dataDevolucaoField = dataDevolucaoPicker.getValue().format(formatter);
+                    
+                    displayGrupos(reservationGrid, primaryStage, dataRetiradaField, dataDevolucaoField);
+                }
+            } else {
+                Alert alert = new Alert(Alert.AlertType.WARNING);
+                alert.setTitle("Data Inválida");
+                alert.setHeaderText("Datas Incompletas");
+                alert.setContentText("Por favor, selecione as datas de retirada e devolução.");
+                alert.showAndWait();
+            }
         });
         reservationGrid.add(submitButton, 2, 1);
     }
