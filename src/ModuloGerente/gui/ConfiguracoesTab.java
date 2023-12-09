@@ -4,6 +4,7 @@ import javafx.scene.control.Tab;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -133,37 +134,46 @@ public class ConfiguracoesTab {
 
         Button submitButton = new Button("Registrar Configurações");
         submitButton.setOnAction(e -> {
-            List<String> basicoValues = Arrays.asList(
-                "BASICO",
-                valorDiariaFieldBasico.getText(),
-                valorTanqueFieldBasico.getText(),
-                valorLimpezaExtFieldBasico.getText(),
-                valorLimpezaintFieldBasico.getText(),
-                diariaSeguroFieldBasico.getText()
+            // Define todas as configurações dos grupos em uma lista de listas
+            List<List<String>> allConfigurations = Arrays.asList(
+                Arrays.asList("BASICO", valorDiariaFieldBasico.getText(), valorTanqueFieldBasico.getText(), valorLimpezaExtFieldBasico.getText(), valorLimpezaintFieldBasico.getText(), diariaSeguroFieldBasico.getText()),
+                Arrays.asList("PADRAO", valorDiariaFieldPadrao.getText(), valorTanqueFieldPadrao.getText(), valorLimpezaExtFieldPadrao.getText(), valorLimpezaintFieldPadrao.getText(), diariaSeguroFieldPadrao.getText()),
+                Arrays.asList("PREMIUM", valorDiariaFieldPremium.getText(), valorTanqueFieldPremium.getText(), valorLimpezaExtFieldPremium.getText(), valorLimpezaintFieldPremium.getText(), diariaSeguroFieldPremium.getText())
             );
-        
-            List<String> padraoValues = Arrays.asList(
-                "PADRAO",
-                valorDiariaFieldPadrao.getText(),
-                valorTanqueFieldPadrao.getText(),
-                valorLimpezaExtFieldPadrao.getText(),
-                valorLimpezaintFieldPadrao.getText(),
-                diariaSeguroFieldPadrao.getText()
-            );
-        
-            List<String> premiumValues = Arrays.asList(
-                "PREMIUM",
-                valorDiariaFieldPremium.getText(),
-                valorTanqueFieldPremium.getText(),
-                valorLimpezaExtFieldPremium.getText(),
-                valorLimpezaintFieldPremium.getText(),
-                diariaSeguroFieldPremium.getText()
-            );
-        
-            List<List<String>> allConfigurations = Arrays.asList(basicoValues, padraoValues, premiumValues);
+
+            // Lista para armazenar os valores inválidos encontrados
+            List<String> invalidValues = new ArrayList<>();
             
-            if (confirmation()) {
+            // Itera sobre cada lista de configurações
+            for (List<String> configuration : allConfigurations) {
+                // Pula o primeiro elemento de cada lista, que é o nome do grupo
+                List<String> valuesToCheck = configuration.subList(1, configuration.size());
+
+                // Itera sobre cada valor da configuração, exceto o nome do grupo
+                for (String value : valuesToCheck) {
+                    if (!value.matches("^[0-9]+(\\.[0-9]+)?$")) {
+                        // Adiciona o nome do grupo e o valor inválido à lista de inválidos
+                        invalidValues.add(configuration.get(0) + " - " + value);
+                    }
+                }
+            }
+
+            // Verifica se há valores inválidos
+            if (!invalidValues.isEmpty()) {
+                // Junta todos os valores inválidos em uma string para exibição
+                String joinedInvalidValues = String.join(", ", invalidValues);
+                
+                // Exibe um alerta com os valores inválidos
+                Alert alert = new Alert(Alert.AlertType.WARNING);
+                alert.setTitle("Valor inválido");
+                alert.setHeaderText("Entrada(s) inválida(s) detectada(s)");
+                alert.setContentText("Os seguintes valores são inválidos: " + joinedInvalidValues + ".\nPor favor, insira apenas valores numéricos válidos (ex: 100, 100.0, 0.5).");
+                alert.showAndWait();
+            } else if (confirmation()) {
+                // Se todos os valores forem válidos e o usuário confirmar, salva as configurações
                 Configuracoes.saveMultiConfiguracoes(allConfigurations);
+                
+                // Exibe um alerta de sucesso
                 Alert alert = new Alert(Alert.AlertType.INFORMATION, "Configurações alteradas com sucesso!");
                 alert.showAndWait();
             }
