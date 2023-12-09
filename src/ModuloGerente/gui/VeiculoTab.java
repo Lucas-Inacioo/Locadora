@@ -180,6 +180,16 @@ public class VeiculoTab {
                 return;
             }
 
+            // Verificação se o ano é um número inteiro de quatro dígitos
+            if (!ano.matches("\\d{4}")) {
+                Alert alert = new Alert(Alert.AlertType.WARNING);
+                alert.setTitle("Ano Inválido");
+                alert.setHeaderText(null);
+                alert.setContentText("O ano de fabricação deve ser um número inteiro de 4 dígitos.");
+                alert.showAndWait();
+                return;
+            }
+
             if (confirmation(placa, marca, modelo, cor, ano, grupo)) {
                 Veiculo veiculo = new Veiculo(
                     placa.toUpperCase(),
